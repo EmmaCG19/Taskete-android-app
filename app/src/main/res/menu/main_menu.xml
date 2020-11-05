@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/searchItem"
+        android:icon="@drawable/ic_search_black_24dp"
+        android:iconTint="@color/white"
+        android:title="Search"
+        app:actionViewClass="android.widget.SearchView"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/switchHideAddBtn"
+        android:title="Show Add Button"
+        app:actionLayout="@layout/switch_item"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/switchHideTaks"
+        android:title="Show Completed Tasks"
+        app:actionLayout="@layout/switch_item"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/settingsItem"
+        android:title="Settings" />
+</menu>
