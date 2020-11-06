@@ -18,7 +18,7 @@ class TaskAdapter(val listener: TaskListener) : RecyclerView.Adapter<TaskAdapter
         val taskCard: CardView = itemView.findViewById(R.id.taskCardView)
         val txtTitle: TextView = itemView.findViewById(R.id.txtTitle)
         val chkIsDone: CheckBox = itemView.findViewById(R.id.chkIsDone)
-        val priorityIcon: ImageView = itemView.findViewById(R.id.priorityIcon)
+        val imgPriority: ImageView = itemView.findViewById(R.id.priorityIcon)
         //TODO falta agregar un icono para indicar la prioridad de la task
     }
 
@@ -43,18 +43,7 @@ class TaskAdapter(val listener: TaskListener) : RecyclerView.Adapter<TaskAdapter
                 tasks[position].isDone = isChecked
                 strikeText(this, tasks[position])
             }
-
         }
-
-    }
-
-    private fun setPriorityColor(holder: TaskViewHolder, task: Task) {
-        var priorityIcon = holder.priorityIcon
-
-        when(task.priority){
-//         Priority.LOW ->  priorityIcon.colorFilter =
-        }
-
     }
 
     fun updateTasks(newTasks: List<Task>) {
@@ -62,7 +51,6 @@ class TaskAdapter(val listener: TaskListener) : RecyclerView.Adapter<TaskAdapter
     }
 
     private fun strikeText(holder: TaskViewHolder, task: Task) {
-
         var text = holder.txtTitle
 
         if (task.isDone) {
@@ -74,7 +62,22 @@ class TaskAdapter(val listener: TaskListener) : RecyclerView.Adapter<TaskAdapter
         }
     }
 
+    private fun setPriorityColor(holder: TaskViewHolder, task: Task) {
+        val icon = holder.imgPriority.drawable
+        val colors = holder.itemView.resources
 
+        val highColor = colors.getColor(R.color.colorPriorityHigh)
+        val mediumColor = colors.getColor(R.color.colorPriorityMedium)
+        val lowColor = colors.getColor(R.color.colorPriorityLow)
+        val noColor = colors.getColor(R.color.colorPriorityNotAssigned)
+
+        when (task.priority) {
+            Priority.LOW -> icon.setTint(lowColor)
+            Priority.MEDIUM -> icon.setTint(mediumColor)
+            Priority.HIGH -> icon.setTint(highColor)
+            else -> icon.setTint(noColor)
+        }
+    }
 }
 
 interface TaskListener {

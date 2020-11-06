@@ -23,23 +23,56 @@
             android:id="@+id/rvTasks"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop = "8dp"
+            android:layout_marginTop="8dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guidelineRight"
+            app:layout_constraintStart_toStartOf="@id/guidelineLeft"
             app:layout_constraintTop_toBottomOf="@+id/toolbar"
             tools:itemCount="5" />
+
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="10dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="10dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineBottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_end="10dp" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabAddTask"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
+            android:contentDescription="Add/Edit a task"
             android:elevation="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/guidelineBottom"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_create_black_18dp"
-            android:contentDescription="Add/Edit a task" />
+            app:srcCompat="@drawable/ic_create_black_18dp" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+    <!--        <CheckBox-->
+    <!--            android:id="@+id/chkTest"-->
+    <!--            android:layout_width="0dp"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_marginLeft="8dp"-->
+    <!--            android:checked="false"-->
+    <!--            app:layout_constraintBottom_toTopOf="@id/fabAddTask"-->
+    <!--            app:layout_constraintRight_toRightOf="parent" />-->
