@@ -1,4 +1,15 @@
 <resources>
     <string name="app_name">Taskete</string>
     <string name="main_screen_title">Tasks</string>
+
+    <!--Form-->
+    <string name="title_input_hint">Task name</string>
+    <string name="desc_input_hint">Task description</string>
+    <string name="priority_input">Priority:</string>
+
+    <string name="highPriorityOption">High</string>
+    <string name="lowPriorityOption">Low</string>
+    <string name="mediumPriorityOption">Medium</string>
+    <string name="noPriorityOption">Not assigned</string>
+
 </resources>

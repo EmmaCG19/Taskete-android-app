@@ -16,7 +16,7 @@ class TaskAdapter(val listener: TaskListener) : RecyclerView.Adapter<TaskAdapter
 
     class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val taskCard: CardView = itemView.findViewById(R.id.taskCardView)
-        val txtTitle: TextView = itemView.findViewById(R.id.txtTitle)
+        val txtTitle: TextView = itemView.findViewById(R.id.etTitle)
         val chkIsDone: CheckBox = itemView.findViewById(R.id.chkIsDone)
         val imgPriority: ImageView = itemView.findViewById(R.id.priorityIcon)
         //TODO falta agregar un icono para indicar la prioridad de la task
