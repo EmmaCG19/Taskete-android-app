@@ -1,15 +1,18 @@
 package com.example.taskete
 
 import java.util.*
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 class Task(
-    var id: Int, //Autogenerado
-    var title: String, //TextInputlayout
-    var description: String, //TextInputlayout
-    var priority: Priority, //Radio button
-    var isDone: Boolean, //Not in form
-    var dueDate: Date? = Date() //Datepicker
-) {
+        var id: Int,
+        var title: String,
+        var description: String,
+        var priority: Priority,
+        var isDone: Boolean,
+        var dueDate: Date? = Date() //Datepicker
+) : Parcelable {
     //Default constructor that ORMLite needs
 //    constructor():this(0, "", "", Priority.NOTASSIGNED,false)
 }

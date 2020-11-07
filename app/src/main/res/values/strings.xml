@@ -6,6 +6,7 @@
     <string name="title_input_hint">Task name</string>
     <string name="desc_input_hint">Task description</string>
     <string name="priority_input">Priority:</string>
+    <string name="due_date_input">Due date:</string>
 
     <string name="highPriorityOption">High</string>
     <string name="lowPriorityOption">Low</string>

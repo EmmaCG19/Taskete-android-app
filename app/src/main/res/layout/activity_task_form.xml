@@ -57,15 +57,25 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!--    <ImageView-->
+    <!--        android:id="@+id/priorityIcon"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginTop="10dp"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintEnd_toStartOf="@id/lblPriority"-->
+    <!--        app:layout_constraintTop_toBottomOf="@id/inputDesc"-->
+    <!--        android:src="@drawable/ic_priority"/>-->
+
     <TextView
         android:id="@+id/lblPriority"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="@string/priority_input"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/guidelinePriority"
+        app:layout_constraintBottom_toTopOf="@id/guidelinePriority"
         app:layout_constraintEnd_toStartOf="@id/rgPriorities"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/inputDesc" />
 
     <RadioGroup
@@ -73,8 +83,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:orientation="horizontal"
         android:checkedButton="@id/rbNotPriority"
+        android:orientation="horizontal"
         android:weightSum="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/lblPriority"
@@ -84,9 +94,8 @@
             android:id="@+id/rbNotPriority"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:buttonTint="@color/colorPriorityNotAssigned"
             android:layout_weight="0.25"
-            app:useMaterialThemeColors="true" />
+            android:buttonTint="@color/colorPriorityNotAssigned" />
 
         <com.google.android.material.radiobutton.MaterialRadioButton
             android:id="@+id/rbLowPriority"
@@ -117,5 +126,13 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="202dp" />
 
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/due_date_input"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guidelinePriority" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

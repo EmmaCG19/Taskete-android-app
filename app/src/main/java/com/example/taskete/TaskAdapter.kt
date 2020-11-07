@@ -1,12 +1,14 @@
 package com.example.taskete
 
 import android.graphics.Paint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 
@@ -24,8 +26,8 @@ class TaskAdapter(val listener: TaskListener) : RecyclerView.Adapter<TaskAdapter
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         val itemView = LayoutInflater
-                .from(parent.context)
-                .inflate(R.layout.item_card, parent, false)
+            .from(parent.context)
+            .inflate(R.layout.item_card, parent, false)
 
         return TaskViewHolder(itemView)
     }
@@ -43,11 +45,18 @@ class TaskAdapter(val listener: TaskListener) : RecyclerView.Adapter<TaskAdapter
                 tasks[position].isDone = isChecked
                 strikeText(this, tasks[position])
             }
+
+            taskCard.setOnClickListener {
+                listener.onTaskClicked(tasks[position])
+            }
         }
+
+
     }
 
     fun updateTasks(newTasks: List<Task>) {
         tasks = newTasks
+        notifyDataSetChanged()
     }
 
     private fun strikeText(holder: TaskViewHolder, task: Task) {

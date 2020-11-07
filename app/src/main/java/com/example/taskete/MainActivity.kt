@@ -1,7 +1,9 @@
 package com.example.taskete
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -11,12 +13,16 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
+const val TASK_SELECTED = "Task_selected"
+private const val TAG_ACTIVITY = "MainActivity"
+
+
 class MainActivity : AppCompatActivity(), TaskListener {
     private lateinit var rvTasks: RecyclerView
     private lateinit var coordinatorLayout: CoordinatorLayout
     private lateinit var toolbar: Toolbar
     private lateinit var fabAddTask: FloatingActionButton
-    private val taskAdapter: TaskAdapter by lazy{
+    private val taskAdapter: TaskAdapter by lazy {
         TaskAdapter(this)
     }
 
@@ -32,14 +38,24 @@ class MainActivity : AppCompatActivity(), TaskListener {
     }
 
     private fun setupUI() {
-        //TODO: Initialize components
         fabAddTask = findViewById(R.id.fabAddTask)
         coordinatorLayout = findViewById(R.id.coordinatorLayout)
         rvTasks = findViewById(R.id.rvTasks)
         rvTasks.adapter = taskAdapter
 
-        //TODO: Initialize toolbar
+        fabAddTask.setOnClickListener {
+            launchTaskActivity(null)
+        }
+
         setupToolbar()
+    }
+
+    private fun launchTaskActivity(task: Task?) {
+        Log.d(TAG_ACTIVITY, "Task ID: ${task?.id ?: "Not assigned"}")
+        Intent(this, TaskFormActivity::class.java).apply {
+            putExtra(TASK_SELECTED, task)
+            startActivity(this)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -48,8 +64,8 @@ class MainActivity : AppCompatActivity(), TaskListener {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-          R.id.searchItem -> showMessage("Search icon was pressed")
+        when (item.itemId) {
+            R.id.searchItem -> showMessage("Search icon was pressed")
             //TODO show/hide addBtn
             //TODO show/hide completedTasks
         }
@@ -70,7 +86,7 @@ class MainActivity : AppCompatActivity(), TaskListener {
     }
 
     override fun onTaskClicked(task: Task) {
-        showMessage(task.description.toString())
+        launchTaskActivity(task)
     }
 
     private fun showMessage(message: String) {
