@@ -214,6 +214,7 @@ class TaskFormActivity : AppCompatActivity() {
     }
 
     private fun showMessage(message: String) {
+        //TODO: Use a Snackbar component instead of Toast
 //        Snackbar.make(view, message, Snackbar.LENGTH_SHORT).show()
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
