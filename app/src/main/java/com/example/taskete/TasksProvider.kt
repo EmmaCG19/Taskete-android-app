@@ -3,47 +3,25 @@ package com.example.taskete
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import java.util.*
 
 object TasksProvider {
     private var tasks: MutableList<Task> = mutableListOf<Task>()
 
     init {
-        tasks.add(
-            Task(
-                1,
-                "This is a template title",
-                "This is a template description",
-                Priority.NOTASSIGNED,
-                true
+
+        for (i in 1..15) {
+            tasks.add(
+                    Task(
+                            i,
+                            "Task $i",
+                            "This is a template description",
+                            Priority.LOW,
+                            false,
+                            null
+                    )
             )
-        )
-        tasks.add(
-            Task(
-                2,
-                "This is a template title",
-                "This is a template description",
-                Priority.LOW,
-                true
-            )
-        )
-        tasks.add(
-            Task(
-                3,
-                "This is a template title with a long text to test the limit of characters",
-                "This is a template description",
-                Priority.MEDIUM,
-                false
-            )
-        )
-        tasks.add(
-            Task(
-                4,
-                "This is a template title",
-                "This is a template description",
-                Priority.HIGH,
-                false
-            )
-        )
+        }
     }
 
     fun getTasks(): List<Task> = tasks
@@ -53,6 +31,7 @@ object TasksProvider {
     fun editTask(task: Task) {
         val oldTask = tasks.firstOrNull { t -> t.id == task.id }
         val index = tasks.indexOf(oldTask)
+        Log.d("TASK_EDIT", "Old task: ${oldTask?.id} | ${oldTask?.title} | ${oldTask?.description} | ${oldTask?.priority} | ${oldTask?.dueDate} | ${oldTask?.isDone}")
 
         tasks[index].title = task.title
         tasks[index].description = task.description
@@ -60,13 +39,7 @@ object TasksProvider {
         tasks[index].priority = task.priority
         tasks[index].isDone = task.isDone
 
-//        oldTask?.title = task.title
-//        oldTask?.description =  task.description
-//        oldTask?.dueDate = task.dueDate
-//        oldTask?.priority = task.priority
-//        oldTask?.isDone = task.isDone
-//        Log.d("Number of tasks:", "${this.getTasks().size}")
-
+        Log.d("TASK_EDIT", "New task: ${tasks[index].id} | ${tasks[index].title} | ${tasks[index].description} | ${tasks[index].priority} | ${tasks[index].dueDate} | ${tasks[index].isDone}")
     }
 
     @RequiresApi(Build.VERSION_CODES.N)

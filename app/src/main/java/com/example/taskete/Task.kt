@@ -11,10 +11,10 @@ class Task(
         var description: String,
         var priority: Priority,
         var isDone: Boolean,
-        var dueDate: Date? = Date() //Datepicker
+        var dueDate: Date?
 ) : Parcelable {
     //Default constructor that ORMLite needs
-//    constructor():this(0, "", "", Priority.NOTASSIGNED,false)
+    constructor():this(0, "","", Priority.NOTASSIGNED,false, null)
 }
 
 enum class Priority {

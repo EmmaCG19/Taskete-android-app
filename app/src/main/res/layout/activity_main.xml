@@ -22,14 +22,15 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvTasks"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginTop="8dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toTopOf="@id/guidelineListEnd"
             app:layout_constraintEnd_toEndOf="@id/guidelineRight"
             app:layout_constraintStart_toStartOf="@id/guidelineLeft"
             app:layout_constraintTop_toBottomOf="@+id/toolbar"
-            tools:itemCount="5" />
-
+            tools:itemCount="5"
+            tools:listitem="@layout/item_card" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineLeft"
@@ -63,16 +64,15 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/ic_create_black_18dp" />
 
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineListEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_end="100dp" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 
-    <!--        <CheckBox-->
-    <!--            android:id="@+id/chkTest"-->
-    <!--            android:layout_width="0dp"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:layout_marginLeft="8dp"-->
-    <!--            android:checked="false"-->
-    <!--            app:layout_constraintBottom_toTopOf="@id/fabAddTask"-->
-    <!--            app:layout_constraintRight_toRightOf="parent" />-->

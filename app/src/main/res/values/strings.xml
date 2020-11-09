@@ -5,8 +5,11 @@
     <!--Form-->
     <string name="title_input_hint">Task name</string>
     <string name="desc_input_hint">Task description</string>
-    <string name="priority_input">Priority:</string>
-    <string name="due_date_input">Due date:</string>
+    <string name="priority_input">Priority...</string>
+    <string name="due_time_input">Due Time...</string>
+    <string name="due_time_title">Set your task due time</string>
+    <string name="due_time_ok">Ok</string>
+    <string name="due_time_cancel">Cancel</string>
 
     <string name="highPriorityOption">High</string>
     <string name="lowPriorityOption">Low</string>

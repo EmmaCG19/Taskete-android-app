@@ -51,7 +51,6 @@ class MainActivity : AppCompatActivity(), TaskListener {
     }
 
     private fun launchTaskActivity(task: Task?) {
-        Log.d(TAG_ACTIVITY, "Task ID: ${task?.id ?: "Not assigned"}")
         Intent(this, TaskFormActivity::class.java).apply {
             putExtra(TASK_SELECTED, task)
             startActivity(this)

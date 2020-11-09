@@ -57,15 +57,15 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!--    <ImageView-->
-    <!--        android:id="@+id/priorityIcon"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_marginTop="10dp"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintEnd_toStartOf="@id/lblPriority"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/inputDesc"-->
-    <!--        android:src="@drawable/ic_priority"/>-->
+    <ImageView
+        android:id="@+id/priorityIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/ic_priority"
+        app:layout_constraintBottom_toBottomOf="@id/inputDesc"
+        app:layout_constraintEnd_toStartOf="@id/lblPriority"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/lblPriority"
@@ -126,13 +126,27 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="202dp" />
 
-
-    <TextView
-        android:layout_width="0dp"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDatePicker"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="@string/due_date_input"
+        android:layout_marginTop="20dp"
+        android:drawableLeft="@drawable/ic_timer"
+        android:text="@string/due_time_input"
+        android:textAlignment="textStart"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guidelinePriority" />
+
+
+    <include
+        layout="@layout/date_card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        app:layout_constraintBottom_toBottomOf="@id/btnDatePicker"
+        app:layout_constraintHorizontal_bias="0.2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnDatePicker"
         app:layout_constraintTop_toBottomOf="@id/guidelinePriority" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
