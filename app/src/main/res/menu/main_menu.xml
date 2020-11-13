@@ -7,19 +7,10 @@
         android:icon="@drawable/ic_search_task"
         android:title="Search"
         app:actionViewClass="android.widget.SearchView"
-        app:showAsAction="ifRoom"/>
-    <item
-        android:id="@+id/switchHideAddBtn"
-        android:title="Show Add Button"
-        app:actionLayout="@layout/switch_item"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/switchHideTaks"
-        android:title="Show Completed Tasks"
-        app:actionLayout="@layout/switch_item"
-        app:showAsAction="never" />
+        app:showAsAction="always"/>
     <item
         android:id="@+id/settingsItem"
-        android:title="Settings" />
+        android:icon="@drawable/ic_settings"
+        android:title="Settings"
+        app:showAsAction="always"/>
 </menu>

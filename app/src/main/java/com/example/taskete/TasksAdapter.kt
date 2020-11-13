@@ -1,5 +1,6 @@
 package com.example.taskete
 
+import android.content.Context
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
@@ -13,9 +14,15 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.example.taskete.data.Priority
+import com.example.taskete.data.Task
+import com.example.taskete.db.TasksDAO
 
 
-class TaskAdapter(val listener: RecyclerItemClickListener.OnItemClickListener) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
+class TasksAdapter(
+        val listener: RecyclerItemClickListener.OnItemClickListener
+) : RecyclerView.Adapter<TasksAdapter.TaskViewHolder>() {
+
     private var tasks: List<Task> = emptyList<Task>()
     private var selectedTasks: List<Task> = emptyList<Task>()
     private var defaultCardBg: Drawable? = null
@@ -36,8 +43,6 @@ class TaskAdapter(val listener: RecyclerItemClickListener.OnItemClickListener) :
         return TaskViewHolder(itemView)
     }
 
-    override fun getItemCount(): Int = tasks.size
-
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         holder.apply {
             resetViewHolder(this)
@@ -50,6 +55,7 @@ class TaskAdapter(val listener: RecyclerItemClickListener.OnItemClickListener) :
                 setOnCheckedChangeListener(null)
                 setOnCheckedChangeListener { _, isChecked ->
                     tasks[position].isDone = isChecked
+                    TasksDAO(context).updateTask(tasks[position])
                     strikeText(holder, tasks[position])
                 }
                 isChecked = tasks[position].isDone
@@ -66,6 +72,8 @@ class TaskAdapter(val listener: RecyclerItemClickListener.OnItemClickListener) :
 
         }
     }
+
+    override fun getItemCount(): Int = tasks.size
 
     override fun getItemViewType(position: Int): Int {
         return position

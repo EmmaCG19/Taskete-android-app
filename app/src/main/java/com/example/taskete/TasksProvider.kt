@@ -1,6 +1,8 @@
 package com.example.taskete
 
 import android.util.Log
+import com.example.taskete.data.Priority
+import com.example.taskete.data.Task
 
 object TasksProvider {
     private var tasks: MutableList<Task> = mutableListOf<Task>()

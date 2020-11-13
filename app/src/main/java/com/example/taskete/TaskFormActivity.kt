@@ -8,17 +8,20 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.cardview.widget.CardView
+import com.example.taskete.data.Priority
+import com.example.taskete.data.Task
+import com.example.taskete.db.TasksDAO
 import com.example.taskete.helpers.KeyboardUtil
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment
+import java.sql.SQLException
 
 private const val TAG_ACTIVITY = "TaskFormActivity"
+private const val TAG_DATETIME_FRAGMENT = "DatetimeFragment"
 
 class TaskFormActivity : AppCompatActivity() {
-    private val TAG_DATETIME_FRAGMENT = "TAG_DATETIME_FRAGMENT"
     private lateinit var inputTitle: TextInputLayout
     private lateinit var inputDesc: TextInputLayout
     private lateinit var etTitle: TextInputEditText
@@ -30,11 +33,15 @@ class TaskFormActivity : AppCompatActivity() {
     private lateinit var txtSelectedDate: TextView
     private lateinit var cardDate: CardView
     private lateinit var btnClearDate: ImageButton
-    private val dateFormat: SimpleDateFormat by lazy {
-        SimpleDateFormat("d MMM yyyy HH:mm")
+    private var flagEdit: Boolean = false
+    private val dao: TasksDAO by lazy {
+        TasksDAO(this@TaskFormActivity.applicationContext)
     }
 
     private var selectedDate: Date? = null
+    private val dateFormat: SimpleDateFormat by lazy {
+        SimpleDateFormat("d MMM yyyy HH:mm")
+    }
 
     private val taskRetrieved: Task? by lazy {
         intent.extras?.getParcelable<Task>(TASK_SELECTED)
@@ -67,8 +74,10 @@ class TaskFormActivity : AppCompatActivity() {
     }
 
     private fun setListeners() {
+
         btnSave.setOnClickListener {
             if (taskRetrieved != null) {
+                flagEdit = true
                 editTask()
             } else {
                 createTask()
@@ -99,7 +108,7 @@ class TaskFormActivity : AppCompatActivity() {
     private fun showDateTimePicker() {
 
         //Construct datetime picker fragment
-        var dateTimeFragment: SwitchDateTimeDialogFragment =
+        var dateTimeFragment =
                 (supportFragmentManager.findFragmentByTag(TAG_DATETIME_FRAGMENT)
                         ?: SwitchDateTimeDialogFragment.newInstance(
                                 resources.getText(R.string.due_time_title).toString(),
@@ -126,7 +135,6 @@ class TaskFormActivity : AppCompatActivity() {
                 SwitchDateTimeDialogFragment.OnButtonClickListener {
 
             override fun onPositiveButtonClick(date: Date?) {
-
                 showDateSelection(date)
             }
 
@@ -139,7 +147,6 @@ class TaskFormActivity : AppCompatActivity() {
         dateTimeFragment.show(supportFragmentManager, TAG_DATETIME_FRAGMENT)
 
     }
-
 
     private fun updateFields() {
         etTitle.setText(taskRetrieved?.title)
@@ -154,13 +161,14 @@ class TaskFormActivity : AppCompatActivity() {
     private fun editTask() {
         Log.d(TAG_ACTIVITY, "La tarea se va a editar")
 
+        //create task from input
         if (inputIsValid()) {
-            taskRetrieved?.title = getText(etTitle)
-            taskRetrieved?.description = getText(etDesc)
-            taskRetrieved?.priority = setPriority(rgPriorities.checkedRadioButtonId)
-            taskRetrieved?.dueDate = selectedDate
-            TasksProvider.editTask(taskRetrieved!!)
-            finish()
+            try {
+                dao.updateTask(generateTask())
+                finish()
+            } catch (e: SQLException) {
+                Log.d(TAG_ACTIVITY, "EDIT TASK ERROR: ${e.sqlState}")
+            }
         } else {
             showErrorAlert()
         }
@@ -168,20 +176,27 @@ class TaskFormActivity : AppCompatActivity() {
 
     private fun createTask() {
         if (inputIsValid()) {
-            val newTask = generateTask()
-            TasksProvider.addTask(newTask)
-            finish()
+            try {
+                dao.addTask(generateTask())
+                finish()
+            } catch (e: SQLException) {
+                Log.d(TAG_ACTIVITY, "CREATE TASK ERROR: ${e.sqlState}")
+            }
         } else {
             showErrorAlert()
         }
     }
 
+    //TODO: Chequear creacion de task
     private fun generateTask(): Task {
-        val title = getText(etTitle)
-        val description = getText(etDesc)
-        val priority = setPriority(rgPriorities.checkedRadioButtonId)
-        val date = selectedDate
-        return Task(0, title, description, priority, false, date)
+        return Task(
+                if (flagEdit) taskRetrieved?.id else null,
+                getText(etTitle),
+                getText(etDesc),
+                setPriority(rgPriorities.checkedRadioButtonId),
+                if (flagEdit) taskRetrieved!!.isDone else false,
+                selectedDate
+        )
     }
 
     private fun inputIsValid(): Boolean {

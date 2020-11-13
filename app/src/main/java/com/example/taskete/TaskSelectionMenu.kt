@@ -37,5 +37,6 @@ class SelectionActionMode(
 
 interface TaskSelection {
     fun showDeleteConfirmationDialog()
+    fun enableSelection()
     fun disableSelection()
 }

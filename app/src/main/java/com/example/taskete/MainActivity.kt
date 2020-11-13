@@ -4,12 +4,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.example.taskete.data.Task
+import com.example.taskete.db.TasksDAO
+import com.example.taskete.helpers.UIManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 const val TASK_SELECTED = "Task_selected"
@@ -21,19 +23,23 @@ class MainActivity : AppCompatActivity(), RecyclerItemClickListener.OnItemClickL
     private lateinit var coordinatorLayout: CoordinatorLayout
     private lateinit var toolbar: Toolbar
     private lateinit var fabAddTask: FloatingActionButton
-    private val taskAdapter: TaskAdapter by lazy {
-        TaskAdapter(this)
+    private var tasks: List<Task>
+    private val dao: TasksDAO by lazy {
+        TasksDAO(this@MainActivity.applicationContext)
+    }
+
+    private val tasksAdapter: TasksAdapter by lazy {
+        TasksAdapter(this)
+    }
+
+    init {
+        tasks = emptyList()
     }
 
     //CAB
     private lateinit var selectedTasks: MutableList<Task>
     private var actionMode: ActionMode? = null
     private var isMultiSelect: Boolean = false
-
-    private val tasks: List<Task> by lazy {
-        TasksProvider.getTasks()
-    }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +57,7 @@ class MainActivity : AppCompatActivity(), RecyclerItemClickListener.OnItemClickL
         fabAddTask = findViewById(R.id.fabAddTask)
         coordinatorLayout = findViewById(R.id.coordinatorLayout)
         rvTasks = findViewById(R.id.rvTasks)
-        rvTasks.adapter = taskAdapter
+        rvTasks.adapter = tasksAdapter
 
         fabAddTask.setOnClickListener {
             launchTaskActivity(null)
@@ -76,8 +82,10 @@ class MainActivity : AppCompatActivity(), RecyclerItemClickListener.OnItemClickL
 
     private fun retrieveTasks() {
         Log.d(TAG_ACTIVITY, "Remaining tasks: ${tasks.size}")
-        taskAdapter.updateTasks(tasks)
+        tasks = dao.getTasks()
+        tasksAdapter.updateTasks(tasks)
     }
+
     private fun setupToolbar() {
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -86,9 +94,6 @@ class MainActivity : AppCompatActivity(), RecyclerItemClickListener.OnItemClickL
 
     }
 
-    private fun showMessage(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -98,21 +103,31 @@ class MainActivity : AppCompatActivity(), RecyclerItemClickListener.OnItemClickL
     //Settings + Search bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.searchItem -> showMessage("Search icon was pressed")
-            //TODO show/hide addBtn
-            //TODO show/hide completedTasks
+            R.id.settingsItem -> UIManager.showMessage(this, "Settings icon was pressed")
+            R.id.searchItem -> {
+
+            }
+
         }
 
         return super.onOptionsItemSelected(item)
     }
 
+    private fun deleteSelectedTasks() {
+        selectedTasks.forEach { t ->
+            dao.deleteTask(t)
+        }
+        retrieveTasks()
+    }
+
     //Que hacer cuando se hace click en la tarea
     override fun onItemClick(view: View?, position: Int) {
-        if (isMultiSelect)
+        if (isMultiSelect) {
             multiSelect(position)
-        else {
+        } else {
             launchTaskActivity(tasks[position])
         }
+
     }
 
     //Se hace un longPress click para inicializar la seleccion
@@ -120,13 +135,7 @@ class MainActivity : AppCompatActivity(), RecyclerItemClickListener.OnItemClickL
 
         //Se habilita la seleccion de items y se inicializa una lista de tasks
         if (!isMultiSelect) {
-            isMultiSelect = true
-            selectedTasks = mutableListOf<Task>()
-
-            //Ejecutar el CAB
-            if (actionMode == null) {
-                actionMode = toolbar.startActionMode(SelectionActionMode(this))
-            }
+            enableSelection()
         }
 
         //Guardar la posicion seleccionada en la nueva lista
@@ -143,7 +152,7 @@ class MainActivity : AppCompatActivity(), RecyclerItemClickListener.OnItemClickL
                 selectedTasks.add(taskSelected)
             }
 
-            taskAdapter.getSelectedTasks(selectedTasks)
+            tasksAdapter.getSelectedTasks(selectedTasks)
 
             //Mostrar la cantidad de elementos seleccionados
             actionMode?.title = if (selectedTasks.size > 0) "${selectedTasks.size}" else ""
@@ -151,18 +160,27 @@ class MainActivity : AppCompatActivity(), RecyclerItemClickListener.OnItemClickL
             //Si la cantidad de elementos seleccionados es 0 o se hace click en el cancel, hay que matar al actionMode y limpiar la lista de elementos seleccionados
             if (selectedTasks.size == 0) {
                 disableSelection()
+
             }
         }
+    }
+
+    override fun enableSelection() {
+        isMultiSelect = true
+        selectedTasks = mutableListOf<Task>()
+        actionMode = actionMode ?: toolbar.startActionMode(SelectionActionMode(this))
+        UIManager.hideWidget(fabAddTask)
     }
 
     override fun disableSelection() {
         isMultiSelect = false
         actionMode?.finish()
         actionMode = null
+        UIManager.showWidget(fabAddTask)
     }
 
     override fun showDeleteConfirmationDialog() {
-        val builder = AlertDialog.Builder(this)
+        AlertDialog.Builder(this)
                 .setTitle(R.string.deleteDialogTitle) //Utilizar recursos
                 .setMessage(R.string.deleteDialogDesc)
                 .setPositiveButton(R.string.deleteDialogOK, { _, _ ->
@@ -170,15 +188,10 @@ class MainActivity : AppCompatActivity(), RecyclerItemClickListener.OnItemClickL
                     //TODO: Dar aviso que las tareas fueron eliminadas
                 })
                 .setNegativeButton(R.string.deleteDialogNO, { _, _ ->
-                    disableSelection()
+                    onResume()
                 })
                 .setCancelable(false) //No se puede salir del alert dialog antes que selecciones una opcion, no se puede usar back
                 .show()
-    }
-
-    private fun deleteSelectedTasks() {
-        TasksProvider.deleteTasks(selectedTasks)
-        retrieveTasks()
     }
 
 
