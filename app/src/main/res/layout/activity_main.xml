@@ -62,7 +62,7 @@
             android:elevation="8dp"
             app:layout_constraintBottom_toBottomOf="@id/guidelineBottom"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_create_black_18dp" />
+            app:srcCompat="@drawable/ic_create_task" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineListEnd"

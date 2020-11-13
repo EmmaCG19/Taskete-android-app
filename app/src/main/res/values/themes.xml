@@ -8,10 +8,14 @@
         <item name="colorOnSecondary">@color/white</item>
         <item name="colorSecondaryVariant">@color/secondaryDarkColor</item>
         <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="floatingActionButtonStyle">@style/Theme.Taskete.FAB</item>
+        <item name="actionModeBackground">@color/primaryColor</item>
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
     <style name="Theme.Taskete.FAB" parent="Widget.MaterialComponents.FloatingActionButton">
         <item name="tint">@color/white</item>
     </style>
+
 </resources>
 

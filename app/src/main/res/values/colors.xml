@@ -41,4 +41,7 @@
     <color name="colorPriorityLow">#43A047</color>
     <color name="colorPriorityNotAssigned">@color/colorTextDisabled</color>
 
+    <!--Selected item-->
+    <color name="row_selected">#00ACC1</color>
+
 </resources>

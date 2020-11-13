@@ -1,13 +1,12 @@
 package com.example.taskete
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
+import android.view.*
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.RecyclerView
@@ -17,7 +16,7 @@ const val TASK_SELECTED = "Task_selected"
 private const val TAG_ACTIVITY = "MainActivity"
 
 
-class MainActivity : AppCompatActivity(), TaskListener {
+class MainActivity : AppCompatActivity(), RecyclerItemClickListener.OnItemClickListener, TaskSelection {
     private lateinit var rvTasks: RecyclerView
     private lateinit var coordinatorLayout: CoordinatorLayout
     private lateinit var toolbar: Toolbar
@@ -26,6 +25,16 @@ class MainActivity : AppCompatActivity(), TaskListener {
         TaskAdapter(this)
     }
 
+    //CAB
+    private lateinit var selectedTasks: MutableList<Task>
+    private var actionMode: ActionMode? = null
+    private var isMultiSelect: Boolean = false
+
+    private val tasks: List<Task> by lazy {
+        TasksProvider.getTasks()
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -33,6 +42,7 @@ class MainActivity : AppCompatActivity(), TaskListener {
     }
 
     override fun onResume() {
+        disableSelection()
         retrieveTasks()
         super.onResume()
     }
@@ -48,6 +58,13 @@ class MainActivity : AppCompatActivity(), TaskListener {
         }
 
         setupToolbar()
+        setupCAB()
+    }
+
+    private fun setupCAB() {
+        rvTasks.addOnItemTouchListener(
+                RecyclerItemClickListener(this, rvTasks, this)
+        )
     }
 
     private fun launchTaskActivity(task: Task?) {
@@ -57,11 +74,28 @@ class MainActivity : AppCompatActivity(), TaskListener {
         }
     }
 
+    private fun retrieveTasks() {
+        Log.d(TAG_ACTIVITY, "Remaining tasks: ${tasks.size}")
+        taskAdapter.updateTasks(tasks)
+    }
+    private fun setupToolbar() {
+        toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.title = resources.getText(R.string.main_screen_title)
+        supportActionBar?.subtitle = "Insert a subtitle"
+
+    }
+
+    private fun showMessage(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
+    //Settings + Search bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.searchItem -> showMessage("Search icon was pressed")
@@ -72,24 +106,79 @@ class MainActivity : AppCompatActivity(), TaskListener {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun retrieveTasks() {
-        val tasks = TasksProvider.getTasks()
-        taskAdapter.updateTasks(tasks)
+    //Que hacer cuando se hace click en la tarea
+    override fun onItemClick(view: View?, position: Int) {
+        if (isMultiSelect)
+            multiSelect(position)
+        else {
+            launchTaskActivity(tasks[position])
+        }
     }
 
-    private fun setupToolbar() {
-        toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.title = resources.getText(R.string.main_screen_title)
-        supportActionBar?.subtitle = "Insert a subtitle"
+    //Se hace un longPress click para inicializar la seleccion
+    override fun onItemLongClick(view: View?, position: Int) {
+
+        //Se habilita la seleccion de items y se inicializa una lista de tasks
+        if (!isMultiSelect) {
+            isMultiSelect = true
+            selectedTasks = mutableListOf<Task>()
+
+            //Ejecutar el CAB
+            if (actionMode == null) {
+                actionMode = toolbar.startActionMode(SelectionActionMode(this))
+            }
+        }
+
+        //Guardar la posicion seleccionada en la nueva lista
+        multiSelect(position)
     }
 
-    override fun onTaskClicked(task: Task) {
-        launchTaskActivity(task)
+    private fun multiSelect(position: Int) {
+        if (actionMode != null) {
+            val taskSelected = tasks[position]
+
+            if (selectedTasks.contains(taskSelected)) {
+                selectedTasks.remove(taskSelected)
+            } else {
+                selectedTasks.add(taskSelected)
+            }
+
+            taskAdapter.getSelectedTasks(selectedTasks)
+
+            //Mostrar la cantidad de elementos seleccionados
+            actionMode?.title = if (selectedTasks.size > 0) "${selectedTasks.size}" else ""
+
+            //Si la cantidad de elementos seleccionados es 0 o se hace click en el cancel, hay que matar al actionMode y limpiar la lista de elementos seleccionados
+            if (selectedTasks.size == 0) {
+                disableSelection()
+            }
+        }
     }
 
-    private fun showMessage(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    override fun disableSelection() {
+        isMultiSelect = false
+        actionMode?.finish()
+        actionMode = null
+    }
+
+    override fun showDeleteConfirmationDialog() {
+        val builder = AlertDialog.Builder(this)
+                .setTitle(R.string.deleteDialogTitle) //Utilizar recursos
+                .setMessage(R.string.deleteDialogDesc)
+                .setPositiveButton(R.string.deleteDialogOK, { _, _ ->
+                    deleteSelectedTasks()
+                    //TODO: Dar aviso que las tareas fueron eliminadas
+                })
+                .setNegativeButton(R.string.deleteDialogNO, { _, _ ->
+                    disableSelection()
+                })
+                .setCancelable(false) //No se puede salir del alert dialog antes que selecciones una opcion, no se puede usar back
+                .show()
+    }
+
+    private fun deleteSelectedTasks() {
+        TasksProvider.deleteTasks(selectedTasks)
+        retrieveTasks()
     }
 
 

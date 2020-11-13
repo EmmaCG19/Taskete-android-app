@@ -5,9 +5,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="10dp"
+    android:paddingTop="10dp"
     tools:context=".TaskFormActivity">
 
     <!--TODO: Redondear los input text de title y description-->
+
+    <ImageButton
+        android:id="@+id/btnSave"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:scaleType="fitCenter"
+        android:tint="@color/white"
+        app:layout_constraintBottom_toBottomOf="@id/inputTitle"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_save_task" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/inputTitle"
         android:layout_width="0dp"
@@ -22,27 +35,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/title_input_hint"
+            android:maxLength="50"
             android:singleLine="true"
             android:textSize="24sp" />
 
     </com.google.android.material.textfield.TextInputLayout>
-
-    <ImageButton
-        android:id="@+id/btnSave"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:scaleType="fitCenter"
-        android:tint="@color/white"
-        app:layout_constraintBottom_toBottomOf="@id/inputTitle"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_item_save" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/inputDesc"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/inputTitle">
@@ -52,6 +56,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/desc_input_hint"
+            android:maxLength="100"
             android:maxLines="2"
             android:singleLine="false" />
 
@@ -61,31 +66,31 @@
         android:id="@+id/priorityIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginEnd="5dp"
         android:src="@drawable/ic_priority"
-        app:layout_constraintBottom_toBottomOf="@id/inputDesc"
+        app:layout_constraintBottom_toTopOf="@id/guidelinePriority"
         app:layout_constraintEnd_toStartOf="@id/lblPriority"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/inputDesc" />
 
     <TextView
         android:id="@+id/lblPriority"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:text="@string/priority_input"
         app:layout_constraintBottom_toTopOf="@id/guidelinePriority"
         app:layout_constraintEnd_toStartOf="@id/rgPriorities"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/priorityIcon"
         app:layout_constraintTop_toBottomOf="@id/inputDesc" />
 
     <RadioGroup
         android:id="@+id/rgPriorities"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:checkedButton="@id/rbNotPriority"
         android:orientation="horizontal"
         android:weightSum="1"
+        app:layout_constraintBottom_toTopOf="@id/guidelinePriority"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/lblPriority"
         app:layout_constraintTop_toBottomOf="@id/inputDesc">
@@ -124,28 +129,27 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="202dp" />
+        app:layout_constraintGuide_begin="220dp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnDatePicker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:drawableLeft="@drawable/ic_timer"
         android:text="@string/due_time_input"
         android:textAlignment="textStart"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/guidelinePriority" />
 
-
     <include
         layout="@layout/date_card"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintBottom_toBottomOf="@id/btnDatePicker"
-        app:layout_constraintHorizontal_bias="0.2"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.3"
         app:layout_constraintStart_toEndOf="@id/btnDatePicker"
         app:layout_constraintTop_toBottomOf="@id/guidelinePriority" />
 

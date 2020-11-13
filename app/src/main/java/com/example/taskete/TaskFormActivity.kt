@@ -61,8 +61,12 @@ class TaskFormActivity : AppCompatActivity() {
         btnClearDate = findViewById(R.id.btnClearDate)
         hideDateSelection()
 
+        //Retrieve task data
         updateFields()
+        setListeners()
+    }
 
+    private fun setListeners() {
         btnSave.setOnClickListener {
             if (taskRetrieved != null) {
                 editTask()
@@ -181,7 +185,7 @@ class TaskFormActivity : AppCompatActivity() {
     }
 
     private fun inputIsValid(): Boolean {
-        return if (getText(etTitle).isNullOrEmpty()) {
+        return if (getText(etTitle).trim().isNullOrEmpty()) {
             inputTitle.error = "You must complete this field"
             false;
         } else {
@@ -220,4 +224,6 @@ class TaskFormActivity : AppCompatActivity() {
     }
 
     private fun getText(editText: EditText) = editText.text.toString()
+
+    //TODO: Habilitar el go-back con el supportActionBar en el form de tasks
 }

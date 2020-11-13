@@ -11,9 +11,16 @@
     <string name="due_time_ok">Ok</string>
     <string name="due_time_cancel">Cancel</string>
 
+    <!--Task priority-->
     <string name="highPriorityOption">High</string>
     <string name="lowPriorityOption">Low</string>
     <string name="mediumPriorityOption">Medium</string>
     <string name="noPriorityOption">Not assigned</string>
+
+    <!--Delete Confirmation dialog -->
+    <string name="deleteDialogTitle">Confirm Delete</string>
+    <string name="deleteDialogDesc">Do you want to delete these tasks?</string>
+    <string name="deleteDialogOK">YES</string>
+    <string name="deleteDialogNO">NO</string>
 
 </resources>

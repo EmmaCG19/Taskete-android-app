@@ -1,23 +1,24 @@
 package com.example.taskete
 
-import android.content.res.Resources
 import android.graphics.Paint
 import android.graphics.PorterDuff
+import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.CheckBox
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.activity_task_form.view.*
-import kotlinx.android.synthetic.main.item_card.view.*
-import kotlinx.android.synthetic.main.item_card.view.priorityIcon
 
 
-class TaskAdapter(val listener: TaskListener) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
-    var tasks: List<Task> = emptyList<Task>()
+class TaskAdapter(val listener: RecyclerItemClickListener.OnItemClickListener) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
+    private var tasks: List<Task> = emptyList<Task>()
+    private var selectedTasks: List<Task> = emptyList<Task>()
+    private var defaultCardBg: Drawable? = null
 
     class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val taskCard: CardView = itemView.findViewById(R.id.taskCardView)
@@ -25,6 +26,7 @@ class TaskAdapter(val listener: TaskListener) : RecyclerView.Adapter<TaskAdapter
         val chkIsDone: CheckBox = itemView.findViewById(R.id.chkIsDone)
         val imgPriority: ImageView = itemView.findViewById(R.id.priorityIcon)
     }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         val itemView = LayoutInflater
@@ -38,31 +40,59 @@ class TaskAdapter(val listener: TaskListener) : RecyclerView.Adapter<TaskAdapter
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         holder.apply {
+            resetViewHolder(this)
             txtTitle.text = tasks[position].title
             setPriorityColor(this, tasks[position])
             strikeText(this, tasks[position])
 
             //Fix to checkbox not holding view state
-            chkIsDone.setOnCheckedChangeListener(null)
-
-            chkIsDone.isChecked = tasks[position].isDone
-
-            chkIsDone.setOnCheckedChangeListener { _, isChecked ->
-                tasks[position].isDone = isChecked
-                strikeText(this, tasks[position])
+            chkIsDone.apply {
+                setOnCheckedChangeListener(null)
+                setOnCheckedChangeListener { _, isChecked ->
+                    tasks[position].isDone = isChecked
+                    strikeText(holder, tasks[position])
+                }
+                isChecked = tasks[position].isDone
             }
 
+            //Highlight view
             taskCard.setOnClickListener {
-                listener.onTaskClicked(tasks[position])
+                showSelectedTasks()
+                if (selectedTasks.contains(tasks[position]))
+                    taskCard.background = itemView.resources.getDrawable(R.drawable.bg_list_row, null)
+                else
+                    taskCard.background = defaultCardBg
             }
+
         }
+    }
 
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
 
+    private fun resetViewHolder(holder: TaskViewHolder) {
+        if (defaultCardBg == null) {
+            defaultCardBg = holder.taskCard.background
+        } else {
+            holder.taskCard.background = defaultCardBg
+        }
+    }
+
+    private fun showSelectedTasks() {
+        for (task in selectedTasks) {
+            Log.d("SELECTED_TASK", "ID: ${task.id}")
+        }
     }
 
     fun updateTasks(newTasks: List<Task>) {
         tasks = newTasks
+        selectedTasks = emptyList()
         notifyDataSetChanged()
+    }
+
+    fun getSelectedTasks(tasks: List<Task>) {
+        selectedTasks = tasks
     }
 
     private fun strikeText(holder: TaskViewHolder, task: Task) {
@@ -94,8 +124,4 @@ class TaskAdapter(val listener: TaskListener) : RecyclerView.Adapter<TaskAdapter
 
         }
     }
-}
-
-interface TaskListener {
-    fun onTaskClicked(task: Task)
 }

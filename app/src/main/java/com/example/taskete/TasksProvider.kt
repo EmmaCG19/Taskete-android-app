@@ -1,16 +1,14 @@
 package com.example.taskete
 
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
-import java.util.*
 
 object TasksProvider {
     private var tasks: MutableList<Task> = mutableListOf<Task>()
 
+
     init {
 
-        for (i in 1..15) {
+        for (i in 1..10) {
             tasks.add(
                     Task(
                             i,
@@ -42,9 +40,11 @@ object TasksProvider {
         Log.d("TASK_EDIT", "New task: ${tasks[index].id} | ${tasks[index].title} | ${tasks[index].description} | ${tasks[index].priority} | ${tasks[index].dueDate} | ${tasks[index].isDone}")
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    fun deleteTask(task: Task) {
-        tasks.removeIf { t -> t.id == task.id }
+    fun deleteTasks(newTasks: List<Task>) {
+        Log.d("TASK_DELETE", "Number of tasks: ${tasks.size}")
+        Log.d("TASK_DELETE", "Number of tasks to delete: ${newTasks.size}")
+        tasks.removeAll(newTasks)
+        Log.d("TASK_DELETE", "Number of tasks after delete: ${tasks.size}")
     }
 }
 
