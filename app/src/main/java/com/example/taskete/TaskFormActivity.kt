@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.*
+import androidx.appcompat.widget.Toolbar
 import androidx.cardview.widget.CardView
 import com.example.taskete.data.Priority
 import com.example.taskete.data.Task
@@ -71,6 +72,10 @@ class TaskFormActivity : AppCompatActivity() {
         //Retrieve task data
         updateFields()
         setListeners()
+
+        //TODO: Habilitar el go-back con el supportActionBar en el form de tasks
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.setHomeButtonEnabled(true)
     }
 
     private fun setListeners() {
@@ -240,5 +245,5 @@ class TaskFormActivity : AppCompatActivity() {
 
     private fun getText(editText: EditText) = editText.text.toString()
 
-    //TODO: Habilitar el go-back con el supportActionBar en el form de tasks
+
 }

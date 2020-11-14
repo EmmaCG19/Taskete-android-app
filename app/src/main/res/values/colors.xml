@@ -9,16 +9,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!--### App v1 ###-->
-<!--    <color name="primaryColor">#80cbc4</color>-->
-<!--    <color name="primaryDarkColor">#4f9a94</color>-->
-<!--    <color name="primaryAccentColor">#b2fef7</color>-->
-<!--    <color name="secondaryColor">#00796b</color>-->
-<!--    <color name="secondaryDarkColor">#004c40</color>-->
-<!--    <color name="secondaryAccentColor">#48a999</color>-->
-<!--    <color name="colorBackground">#5A5A56</color>-->
-<!--    <color name="colorPrimaryText">@color/white</color>-->
-<!--    <color name="colorSecondaryText">@color/black</color-->
 
     <!--### App v2 ###-->
     <color name="primaryColor">#b2dfdb</color>
@@ -42,6 +32,6 @@
     <color name="colorPriorityNotAssigned">@color/colorTextDisabled</color>
 
     <!--Selected item-->
-    <color name="row_selected">#00ACC1</color>
+    <color name="row_selected">@color/secondaryColor</color>
 
 </resources>

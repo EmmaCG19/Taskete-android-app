@@ -11,6 +11,7 @@
         <item name="floatingActionButtonStyle">@style/Theme.Taskete.FAB</item>
         <item name="actionModeBackground">@color/primaryColor</item>
         <item name="windowActionModeOverlay">true</item>
+        <item name="android:switchPreferenceStyle">@color/secondaryColor</item>
     </style>
 
     <style name="Theme.Taskete.FAB" parent="Widget.MaterialComponents.FloatingActionButton">

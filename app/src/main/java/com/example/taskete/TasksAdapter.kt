@@ -61,17 +61,19 @@ class TasksAdapter(
                 isChecked = tasks[position].isDone
             }
 
+
             //Highlight view
             taskCard.setOnClickListener {
-                showSelectedTasks()
                 if (selectedTasks.contains(tasks[position]))
-                    taskCard.background = itemView.resources.getDrawable(R.drawable.bg_list_row, null)
-                else
-                    taskCard.background = defaultCardBg
+                    itemView.background = itemView.resources.getDrawable(R.drawable.bg_list_row, null)
+                else {
+                    itemView.background = defaultCardBg
+                }
             }
 
         }
     }
+
 
     override fun getItemCount(): Int = tasks.size
 
@@ -101,6 +103,7 @@ class TasksAdapter(
 
     fun getSelectedTasks(tasks: List<Task>) {
         selectedTasks = tasks
+        showSelectedTasks()
     }
 
     private fun strikeText(holder: TaskViewHolder, task: Task) {

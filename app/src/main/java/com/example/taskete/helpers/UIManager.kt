@@ -16,11 +16,11 @@ object UIManager {
         }
     }
 
-    fun showWidget(view: View) {
+    fun show(view: View) {
         view.visibility = View.VISIBLE
     }
 
-    fun hideWidget(view: View) {
+    fun hide(view: View) {
         view.visibility = View.GONE
     }
 }

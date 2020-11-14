@@ -23,4 +23,10 @@
     <string name="deleteDialogOK">YES</string>
     <string name="deleteDialogNO">NO</string>
 
+    <!--Settings-->
+    <string name="showAddBtnTitlePref">Show Add Button</string>
+    <string name="showAddBtnSummaryPref">Set visibility of the Add Task button</string>
+    <string name="showCompletedTasksTitlePref">Show Completed Tasks</string>
+    <string name="showCompletedTasksSummaryPref">Allow to see the completed tasks</string>
+
 </resources>

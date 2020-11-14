@@ -1,29 +1,39 @@
 package com.example.taskete
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.taskete.data.Task
 import com.example.taskete.db.TasksDAO
 import com.example.taskete.helpers.UIManager
+import com.example.taskete.preferences.PreferencesActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 const val TASK_SELECTED = "Task_selected"
-private const val TAG_ACTIVITY = "MainActivity"
+private const val PREFERENCE_ADDTASK = "swShowAddBtn"
+private const val PREFERENCE_SHOWCOMPLETE = "swPrefShowCompletedTasks"
 
-
-class MainActivity : AppCompatActivity(), RecyclerItemClickListener.OnItemClickListener, TaskSelection {
+class MainActivity :
+        AppCompatActivity(),
+        RecyclerItemClickListener.OnItemClickListener,
+        TaskSelection {
     private lateinit var rvTasks: RecyclerView
     private lateinit var coordinatorLayout: CoordinatorLayout
     private lateinit var toolbar: Toolbar
     private lateinit var fabAddTask: FloatingActionButton
+    private var showAddFab: Boolean
+    private var showCompletedTasks: Boolean
     private var tasks: List<Task>
+    private val preferences: SharedPreferences by lazy {
+        PreferenceManager.getDefaultSharedPreferences(this)
+    }
     private val dao: TasksDAO by lazy {
         TasksDAO(this@MainActivity.applicationContext)
     }
@@ -34,6 +44,8 @@ class MainActivity : AppCompatActivity(), RecyclerItemClickListener.OnItemClickL
 
     init {
         tasks = emptyList()
+        showAddFab = false
+        showCompletedTasks = false
     }
 
     //CAB
@@ -48,8 +60,8 @@ class MainActivity : AppCompatActivity(), RecyclerItemClickListener.OnItemClickL
     }
 
     override fun onResume() {
+        checkPreferences()
         disableSelection()
-        retrieveTasks()
         super.onResume()
     }
 
@@ -67,6 +79,48 @@ class MainActivity : AppCompatActivity(), RecyclerItemClickListener.OnItemClickL
         setupCAB()
     }
 
+    private fun checkPreferences() {
+        handleFabAddVisibility()
+        handleShowCompletedTasks()
+    }
+
+    private fun handleFabAddVisibility() {
+        showAddFab = preferences.getBoolean(PREFERENCE_ADDTASK, true)
+
+        if (showAddFab) {
+            UIManager.show(fabAddTask)
+        } else {
+            UIManager.hide(fabAddTask)
+        }
+    }
+
+    private fun handleShowCompletedTasks() {
+        showCompletedTasks = preferences.getBoolean(PREFERENCE_SHOWCOMPLETE, true)
+        tasks = dao.getTasks()
+
+        if (showCompletedTasks) {
+            showAllTasks()
+        } else {
+            showPendingTasks()
+        }
+    }
+
+    //GET TASKS
+    private fun showPendingTasks() {
+        tasks = tasks.filter { t ->
+            !t.isDone
+        }
+        showTasks(tasks)
+    }
+
+    private fun showAllTasks() {
+        showTasks(tasks)
+    }
+
+    private fun showTasks(tasks: List<Task>) {
+        tasksAdapter.updateTasks(tasks)
+    }
+
     private fun setupCAB() {
         rvTasks.addOnItemTouchListener(
                 RecyclerItemClickListener(this, rvTasks, this)
@@ -80,18 +134,11 @@ class MainActivity : AppCompatActivity(), RecyclerItemClickListener.OnItemClickL
         }
     }
 
-    private fun retrieveTasks() {
-        Log.d(TAG_ACTIVITY, "Remaining tasks: ${tasks.size}")
-        tasks = dao.getTasks()
-        tasksAdapter.updateTasks(tasks)
-    }
-
     private fun setupToolbar() {
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.title = resources.getText(R.string.main_screen_title)
         supportActionBar?.subtitle = "Insert a subtitle"
-
     }
 
 
@@ -103,21 +150,19 @@ class MainActivity : AppCompatActivity(), RecyclerItemClickListener.OnItemClickL
     //Settings + Search bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.settingsItem -> UIManager.showMessage(this, "Settings icon was pressed")
-            R.id.searchItem -> {
-
-            }
-
+            R.id.settingsItem -> launchSettingsActivity()
+//            R.id.searchItem -> {
+//
+//            }
         }
 
         return super.onOptionsItemSelected(item)
     }
 
-    private fun deleteSelectedTasks() {
-        selectedTasks.forEach { t ->
-            dao.deleteTask(t)
+    private fun launchSettingsActivity() {
+        Intent(this, PreferencesActivity::class.java).apply {
+            startActivity(this)
         }
-        retrieveTasks()
     }
 
     //Que hacer cuando se hace click en la tarea
@@ -165,30 +210,45 @@ class MainActivity : AppCompatActivity(), RecyclerItemClickListener.OnItemClickL
         }
     }
 
-    override fun enableSelection() {
+    private fun enableSelection() {
         isMultiSelect = true
         selectedTasks = mutableListOf<Task>()
-        actionMode = actionMode ?: toolbar.startActionMode(SelectionActionMode(this))
-        UIManager.hideWidget(fabAddTask)
+        actionMode = actionMode ?: toolbar.startActionMode(TaskSelectionMode(this))
+
+        if (showAddFab)
+            UIManager.hide(fabAddTask)
     }
 
-    override fun disableSelection() {
+    private fun disableSelection() {
         isMultiSelect = false
         actionMode?.finish()
         actionMode = null
-        UIManager.showWidget(fabAddTask)
+
+        if (showAddFab)
+            UIManager.show(fabAddTask)
+    }
+
+    private fun deleteSelectedTasks() {
+        selectedTasks.forEach { t ->
+            dao.deleteTask(t)
+        }
+        resetSelection()
+    }
+
+    override fun resetSelection() {
+        onResume()
     }
 
     override fun showDeleteConfirmationDialog() {
         AlertDialog.Builder(this)
-                .setTitle(R.string.deleteDialogTitle) //Utilizar recursos
+                .setTitle(R.string.deleteDialogTitle)
                 .setMessage(R.string.deleteDialogDesc)
                 .setPositiveButton(R.string.deleteDialogOK, { _, _ ->
                     deleteSelectedTasks()
-                    //TODO: Dar aviso que las tareas fueron eliminadas
+                    UIManager.showMessage(this, "${selectedTasks.size} tasks were deleted")
                 })
                 .setNegativeButton(R.string.deleteDialogNO, { _, _ ->
-                    onResume()
+                    resetSelection()
                 })
                 .setCancelable(false) //No se puede salir del alert dialog antes que selecciones una opcion, no se puede usar back
                 .show()

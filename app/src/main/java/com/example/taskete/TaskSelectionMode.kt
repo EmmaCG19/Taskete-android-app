@@ -6,7 +6,7 @@ import android.view.Menu
 import android.view.MenuItem
 
 
-class SelectionActionMode(
+class TaskSelectionMode(
         private val listener: TaskSelection
 ) : ActionMode.Callback {
 
@@ -23,7 +23,6 @@ class SelectionActionMode(
         return when (item?.itemId) {
             R.id.action_delete -> {
                 listener.showDeleteConfirmationDialog()
-                listener.disableSelection()
                 true
             }
             else -> false
@@ -31,12 +30,11 @@ class SelectionActionMode(
     }
 
     override fun onDestroyActionMode(mode: ActionMode?) {
-        listener.disableSelection()
+        listener.resetSelection()
     }
 }
 
 interface TaskSelection {
     fun showDeleteConfirmationDialog()
-    fun enableSelection()
-    fun disableSelection()
+    fun resetSelection()
 }
