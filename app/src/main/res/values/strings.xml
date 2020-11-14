@@ -11,6 +11,10 @@
     <string name="due_time_ok">Ok</string>
     <string name="due_time_cancel">Cancel</string>
 
+    <!--Task alert-->
+    <string name="alertTimeLeft">On track</string>
+    <string name="alertNoTimeLeft">DO IT NOW</string>
+
     <!--Task priority-->
     <string name="highPriorityOption">High</string>
     <string name="lowPriorityOption">Low</string>

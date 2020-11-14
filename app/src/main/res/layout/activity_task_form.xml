@@ -8,8 +8,6 @@
     android:paddingTop="10dp"
     tools:context=".TaskFormActivity">
 
-    <!--TODO: Redondear los input text de title y description-->
-
     <ImageButton
         android:id="@+id/btnSave"
         android:layout_width="wrap_content"
@@ -35,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/title_input_hint"
-            android:maxLength="50"
+            android:maxLength="30"
             android:singleLine="true"
             android:textSize="24sp" />
 

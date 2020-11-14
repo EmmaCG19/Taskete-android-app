@@ -165,17 +165,15 @@ class MainActivity :
     }
 
     //Que hacer cuando se hace click en la tarea
-    override fun onItemClick(view: View?, position: Int) {
+    override fun onItemTouch(view: View?, position: Int) {
+
         if (isMultiSelect) {
             multiSelect(position)
-        } else {
-            launchTaskActivity(tasks[position])
         }
-
     }
 
     //Se hace un longPress click para inicializar la seleccion
-    override fun onItemLongClick(view: View?, position: Int) {
+    override fun onItemLongPress(view: View?, position: Int) {
 
         //Se habilita la seleccion de items y se inicializa una lista de tasks
         if (!isMultiSelect) {
@@ -184,6 +182,10 @@ class MainActivity :
 
         //Guardar la posicion seleccionada en la nueva lista
         multiSelect(position)
+    }
+
+    override fun onItemDoubleTouch(view: View?, position: Int) {
+        launchTaskActivity(tasks[position])
     }
 
     private fun multiSelect(position: Int) {

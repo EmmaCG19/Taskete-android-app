@@ -1,6 +1,5 @@
 package com.example.taskete
 
-import java.text.SimpleDateFormat
 import java.util.*
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -12,6 +11,7 @@ import androidx.cardview.widget.CardView
 import com.example.taskete.data.Priority
 import com.example.taskete.data.Task
 import com.example.taskete.db.TasksDAO
+import com.example.taskete.extensions.stringFromDate
 import com.example.taskete.helpers.KeyboardUtil
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -40,10 +40,6 @@ class TaskFormActivity : AppCompatActivity() {
     }
 
     private var selectedDate: Date? = null
-    private val dateFormat: SimpleDateFormat by lazy {
-        SimpleDateFormat("d MMM yyyy HH:mm")
-    }
-
     private val taskRetrieved: Task? by lazy {
         intent.extras?.getParcelable<Task>(TASK_SELECTED)
     }
@@ -107,7 +103,7 @@ class TaskFormActivity : AppCompatActivity() {
     private fun showDateSelection(date: Date?) {
         selectedDate = date
         cardDate.visibility = View.VISIBLE
-        txtSelectedDate.text = dateFormat.format(date)
+        txtSelectedDate.text = selectedDate?.stringFromDate()
     }
 
     private fun showDateTimePicker() {
