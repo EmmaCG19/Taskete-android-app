@@ -11,7 +11,6 @@ object UIManager {
     fun showMessage(context: Context, message: String) {
         KeyboardUtil.hideKeyboard(context as Activity)
         Toast.makeText(context, message, Toast.LENGTH_SHORT).apply {
-//            view?.background = context.resources.getDrawable(android.R.drawable.alert_dark_frame, null)
             show()
         }
     }

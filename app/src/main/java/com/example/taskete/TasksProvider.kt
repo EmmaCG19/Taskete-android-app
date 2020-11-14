@@ -31,7 +31,6 @@ object TasksProvider {
     fun editTask(task: Task) {
         val oldTask = tasks.firstOrNull { t -> t.id == task.id }
         val index = tasks.indexOf(oldTask)
-        Log.d("TASK_EDIT", "Old task: ${oldTask?.id} | ${oldTask?.title} | ${oldTask?.description} | ${oldTask?.priority} | ${oldTask?.dueDate} | ${oldTask?.isDone}")
 
         tasks[index].title = task.title
         tasks[index].description = task.description
@@ -43,10 +42,7 @@ object TasksProvider {
     }
 
     fun deleteTasks(newTasks: List<Task>) {
-        Log.d("TASK_DELETE", "Number of tasks: ${tasks.size}")
-        Log.d("TASK_DELETE", "Number of tasks to delete: ${newTasks.size}")
         tasks.removeAll(newTasks)
-        Log.d("TASK_DELETE", "Number of tasks after delete: ${tasks.size}")
     }
 }
 

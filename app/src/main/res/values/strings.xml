@@ -10,10 +10,12 @@
     <string name="due_time_title">Set your task due time</string>
     <string name="due_time_ok">Ok</string>
     <string name="due_time_cancel">Cancel</string>
+    <string name="error_database_update">The task couldnt be updated</string>
+    <string name="error_database_add">The task couldnt be created</string>
 
     <!--Task alert-->
     <string name="alertTimeLeft">On track</string>
-    <string name="alertNoTimeLeft">DO IT NOW</string>
+    <string name="alertNoTimeLeft">Check it out now</string>
 
     <!--Task priority-->
     <string name="highPriorityOption">High</string>
@@ -41,5 +43,11 @@
     <string name="app_description">App creada por el alumno Emmanuel Fernandez como proyecto de la materia de Programación IV</string>
     <string name="app_repo_link">Link a Github</string>
     <string name="app_version">v1.0</string>
+
+    <!--Notification-->
+    <string name="channelId">1</string>
+    <string name="channelName">Task Reminder</string>
+    <string name="channelDesc">You will be notified about the tasks that must be completed</string>
+
 
 </resources>

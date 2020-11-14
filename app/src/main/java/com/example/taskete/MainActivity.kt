@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.*
+import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -15,6 +16,7 @@ import com.example.taskete.db.TasksDAO
 import com.example.taskete.helpers.UIManager
 import com.example.taskete.preferences.PreferencesActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.android.synthetic.main.activity_main.*
 
 const val TASK_SELECTED = "Task_selected"
 private const val PREFERENCE_ADDTASK = "swShowAddBtn"
@@ -28,12 +30,17 @@ class MainActivity :
     private lateinit var coordinatorLayout: CoordinatorLayout
     private lateinit var toolbar: Toolbar
     private lateinit var fabAddTask: FloatingActionButton
+    private lateinit var iconNoTasks: ImageView
     private var showAddFab: Boolean
     private var showCompletedTasks: Boolean
     private var tasks: List<Task>
+    private lateinit var selectedTasks: MutableList<Task>
+    private var actionMode: ActionMode? = null
+    private var isMultiSelect: Boolean = false
     private val preferences: SharedPreferences by lazy {
         PreferenceManager.getDefaultSharedPreferences(this)
     }
+
     private val dao: TasksDAO by lazy {
         TasksDAO(this@MainActivity.applicationContext)
     }
@@ -47,11 +54,6 @@ class MainActivity :
         showAddFab = false
         showCompletedTasks = false
     }
-
-    //CAB
-    private lateinit var selectedTasks: MutableList<Task>
-    private var actionMode: ActionMode? = null
-    private var isMultiSelect: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +72,7 @@ class MainActivity :
         coordinatorLayout = findViewById(R.id.coordinatorLayout)
         rvTasks = findViewById(R.id.rvTasks)
         rvTasks.adapter = tasksAdapter
+        iconNoTasks = findViewById(R.id.iconNoTasks)
 
         fabAddTask.setOnClickListener {
             launchTaskActivity(null)
@@ -103,9 +106,9 @@ class MainActivity :
         } else {
             showPendingTasks()
         }
+
     }
 
-    //GET TASKS
     private fun showPendingTasks() {
         tasks = tasks.filter { t ->
             !t.isDone
@@ -119,6 +122,14 @@ class MainActivity :
 
     private fun showTasks(tasks: List<Task>) {
         tasksAdapter.updateTasks(tasks)
+
+        if (tasks.size == 0) {
+            UIManager.hide(rvTasks)
+            UIManager.show(iconNoTasks)
+        } else {
+            UIManager.hide(iconNoTasks)
+            UIManager.show(rvTasks)
+        }
     }
 
     private fun setupCAB() {
@@ -150,9 +161,6 @@ class MainActivity :
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.settingsItem -> launchSettingsActivity()
-//            R.id.searchItem -> {
-//
-//            }
         }
 
         return super.onOptionsItemSelected(item)
@@ -164,7 +172,6 @@ class MainActivity :
         }
     }
 
-    //Que hacer cuando se hace click en la tarea
     override fun onItemTouch(view: View?, position: Int) {
 
         if (isMultiSelect) {
@@ -172,15 +179,11 @@ class MainActivity :
         }
     }
 
-    //Se hace un longPress click para inicializar la seleccion
     override fun onItemLongPress(view: View?, position: Int) {
-
-        //Se habilita la seleccion de items y se inicializa una lista de tasks
         if (!isMultiSelect) {
             enableSelection()
         }
 
-        //Guardar la posicion seleccionada en la nueva lista
         multiSelect(position)
     }
 
@@ -200,10 +203,8 @@ class MainActivity :
 
             tasksAdapter.getSelectedTasks(selectedTasks)
 
-            //Mostrar la cantidad de elementos seleccionados
             actionMode?.title = if (selectedTasks.size > 0) "${selectedTasks.size}" else ""
 
-            //Si la cantidad de elementos seleccionados es 0 o se hace click en el cancel, hay que matar al actionMode y limpiar la lista de elementos seleccionados
             if (selectedTasks.size == 0) {
                 disableSelection()
 
@@ -251,7 +252,7 @@ class MainActivity :
                 .setNegativeButton(R.string.deleteDialogNO, { _, _ ->
                     resetSelection()
                 })
-                .setCancelable(false) //No se puede salir del alert dialog antes que selecciones una opcion, no se puede usar back
+                .setCancelable(false)
                 .show()
     }
 

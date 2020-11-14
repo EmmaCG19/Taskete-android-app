@@ -92,7 +92,7 @@ class TasksAdapter(
             val actualDate = Date(System.currentTimeMillis())
             val diff = actualDate.compareTo(taskDate)
 
-            //Se cambia el calor de acuerdo a la proximidad
+            //Se cambia el calor de acuerdo a la proximidadnhbt
             if (diff > 0) {
                 dueDate.setTextColor(ContextCompat.getColor(context, R.color.colorPriorityHigh))
                 dueDate.setText(R.string.alertNoTimeLeft)
@@ -101,6 +101,7 @@ class TasksAdapter(
                 dueDate.setText(R.string.alertTimeLeft)
             }
         }
+
     }
 
 

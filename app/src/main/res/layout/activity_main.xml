@@ -71,6 +71,17 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_end="100dp" />
 
+        <ImageView
+            android:id="@+id/iconNoTasks"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:src="@drawable/ic_tasks_done"
+            android:visibility="gone"
+            app:tint="@color/colorTextDisabled"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

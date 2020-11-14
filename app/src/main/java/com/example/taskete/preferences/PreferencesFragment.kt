@@ -17,13 +17,11 @@ class PreferencesFragment : PreferenceFragmentCompat() {
 
     private fun launchAboutMeActivity() {
         preferenceManager.findPreference<Preference>("showAboutMeSection")
-            ?.setOnPreferenceClickListener(object : Preference.OnPreferenceClickListener {
-                override fun onPreferenceClick(preference: Preference?): Boolean {
-                    Intent(activity, AboutMeActivity::class.java).apply {
-                        startActivity(this)
-                    }
-                    return true
+            ?.setOnPreferenceClickListener {
+                Intent(activity, AboutMeActivity::class.java).apply {
+                    startActivity(this)
                 }
-            })
+                true
+            }
     }
 }
