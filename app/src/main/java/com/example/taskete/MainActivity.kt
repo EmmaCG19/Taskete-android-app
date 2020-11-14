@@ -138,7 +138,6 @@ class MainActivity :
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.title = resources.getText(R.string.main_screen_title)
-        supportActionBar?.subtitle = "Insert a subtitle"
     }
 
 

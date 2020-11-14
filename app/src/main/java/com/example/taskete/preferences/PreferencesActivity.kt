@@ -18,4 +18,5 @@ class PreferencesActivity : AppCompatActivity() {
             .replace(R.id.container, PreferencesFragment())
             .commit()
     }
+
 }

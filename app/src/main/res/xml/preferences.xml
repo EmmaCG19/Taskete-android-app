@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="swShowAddBtn"
-        android:title="@string/showAddBtnTitlePref"
-        android:summary="@string/showAddBtnSummaryPref" />
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="swPrefShowCompletedTasks"
-        android:title="@string/showCompletedTasksTitlePref"
-        android:summary="@string/showCompletedTasksSummaryPref" />
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory android:summary="@string/visualizationCategory">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="swShowAddBtn"
+            android:summary="@string/showAddBtnSummaryPref"
+            android:title="@string/showAddBtnTitlePref" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="swPrefShowCompletedTasks"
+            android:summary="@string/showCompletedTasksSummaryPref"
+            android:title="@string/showCompletedTasksTitlePref" />
+    </PreferenceCategory>
+    <PreferenceCategory android:summary="@string/extraCategory">
+        <Preference
+            android:title="@string/showAboutMeTitlePref"
+            app:key="showAboutMeSection" />
+    </PreferenceCategory>
 </PreferenceScreen>
