@@ -34,4 +34,6 @@
     <!--Selected item-->
     <color name="row_selected">@color/secondaryColor</color>
 
+    <!--Splashscreen-->
+    <color name="splashscreen">#023A35</color>
 </resources>
