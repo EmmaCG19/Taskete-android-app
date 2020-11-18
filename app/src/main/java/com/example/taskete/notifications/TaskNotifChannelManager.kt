@@ -18,7 +18,6 @@ object TaskNotifChannelManager {
         val TASK_REMINDER_NAME = context.resources.getText(R.string.channelName)
         val TASK_REMINDER_DESCRIPTION = context.resources.getText(R.string.channelDesc).toString()
 
-        //El channel va a tomar la id de la tarea
         val notificationManager = NotificationManagerCompat.from(context)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

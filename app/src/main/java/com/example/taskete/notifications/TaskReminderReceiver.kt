@@ -14,6 +14,7 @@ const val DEFAULT_ID = 1000
 
 class TaskReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
+        Log.d("TASKREMINDER", "Se interceptó el intent del broadcast.")
         val bundle = intent?.extras
         val notificationManager = context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notification = bundle?.getParcelable<Notification>(TASK_NOTIFICATION)

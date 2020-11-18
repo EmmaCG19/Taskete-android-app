@@ -2,10 +2,12 @@ package com.example.taskete
 
 import android.app.AlarmManager
 import android.app.Notification
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Log
 import android.view.View
 import android.widget.EditText
@@ -33,7 +35,7 @@ import java.sql.SQLException
 import java.util.*
 
 private const val TAG_DATETIME_FRAGMENT = "DatetimeFragment"
-private const val REMINDER_TIME = 3600
+private const val REMINDER_TIME_IN_MINUTES = 1
 
 class TaskFormActivity : AppCompatActivity() {
     private lateinit var inputTitle: TextInputLayout
@@ -56,7 +58,9 @@ class TaskFormActivity : AppCompatActivity() {
 
     private var selectedDate: Date? = null
     private val taskRetrieved: Task? by lazy {
-        intent.extras?.getParcelable<Task>(TASK_SELECTED)
+        val bundle: Bundle? = intent.extras
+        Log.d("TASKFORMACTIVITY", "Bundle size: ${bundle?.size()}")
+        bundle?.getParcelable<Task>(TASK_SELECTED)
     }
 
     private lateinit var channelId: String
@@ -91,7 +95,7 @@ class TaskFormActivity : AppCompatActivity() {
             if (taskRetrieved != null) {
                 flagEdit = true
                 editTask()
-                setReminder(taskRetrieved)
+//                setReminder(taskRetrieved)
             } else {
                 createTask()
             }
@@ -149,6 +153,7 @@ class TaskFormActivity : AppCompatActivity() {
             }
 
             override fun onNegativeButtonClick(date: Date?) {
+                flagDateSeleccionada = false
             }
         })
 
@@ -159,35 +164,41 @@ class TaskFormActivity : AppCompatActivity() {
     private fun createReminder(task: Task?): Notification {
         channelId = TaskNotifChannelManager.createNotificationReminderChannel(this)
 
-        return NotificationCompat.Builder(this, channelId)
+        val notif = NotificationCompat.Builder(this, channelId)
                 .setContentTitle(task?.title)
                 .setContentText("Time to do this task")
-                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setSmallIcon(R.drawable.ic_app_icon)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setChannelId(channelId)
                 .setAutoCancel(true)
                 .build()
-    }
 
+        Log.d("TASKFORMACTIVITY", "ChannelId: $channelId , Notification: ${notif.extras}")
+        return notif;
+
+    }
 
     private fun setReminder(task: Task?) {
         if (flagDateSeleccionada && selectedDate != null) {
             val notification = createReminder(task)
 
             val intent = Intent(this, TaskReminderReceiver::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_TASK_ON_HOME)
+                putExtra(TASK_SELECTED, task)
                 putExtra(TASK_NOTIFICATION_ID, task?.id)
                 putExtra(TASK_NOTIFICATION, notification)
             }
 
-            val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
+            val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+            val secondsFromNow = System.currentTimeMillis() + REMINDER_TIME_IN_MINUTES * 20000 //Se le esta sumando 15 seg
             val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val reminderTime = selectedDate?.time?.minus(REMINDER_TIME)
-            alarmManager.set(AlarmManager.RTC_WAKEUP, reminderTime!!, pendingIntent)
+            alarmManager.set(AlarmManager.RTC, secondsFromNow, pendingIntent)
         }
     }
 
     private fun updateFields() {
+        Log.d("TASKFORMACTIVITY", "Task retrieved: ${taskRetrieved?.title}")
+
         etTitle.setText(taskRetrieved?.title)
         etDesc.setText(taskRetrieved?.description)
         val rbSelected = getCheckedPriority(taskRetrieved?.priority)
@@ -200,7 +211,9 @@ class TaskFormActivity : AppCompatActivity() {
     private fun editTask() {
         if (inputIsValid()) {
             try {
-                dao.updateTask(generateTask())
+                //En el caso de ser un update, el id del taskRetrieved es el que necesitamos
+                val updatedTask = generateTask()
+                dao.updateTask(updatedTask)
                 finish()
             } catch (e: SQLException) {
                 UIManager.showMessage(this, "There was an error when updating the task")
@@ -215,18 +228,34 @@ class TaskFormActivity : AppCompatActivity() {
         if (inputIsValid()) {
             try {
                 //Creo la tarea
-                dao.addTask(generateTask())
+                val newTask = generateTask()
+                dao.addTask(newTask)
+
                 //Obtener su id
-/*                val lastId = dao.getLastTaskId()
-                setReminder(task)*/
+                val lastId = getLastTaskId()
+                val task = dao.getTask(lastId!!)
+
+                setReminder(task)
                 finish()
             } catch (e: SQLException) {
-                UIManager.showMessage(this,"There was an error when creating the task")
+                UIManager.showMessage(this, "There was an error when creating the task")
                 finish()
             }
         } else {
             showErrorAlert()
         }
+    }
+
+    private fun getLastTaskId(): Int? {
+        val foundTask: Task? = dao.getTasks().firstOrNull { t ->
+            t.title == getText(etTitle) &&
+                    t.description == getText(etDesc) &&
+                    t.priority == setPriority(rgPriorities.checkedRadioButtonId) &&
+                    t.dueDate == selectedDate
+        }
+
+        Log.d("TASKFORMACTIVITY", "Task Id: ${foundTask?.id}")
+        return foundTask?.id
     }
 
     private fun generateTask(): Task {

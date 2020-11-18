@@ -17,18 +17,12 @@ class TasksDAO(context: Context) {
 
     fun getTasks(): List<Task> = dao.queryForAll()
 
-    fun getTask(task: Task): Task = dao.queryForId(task.id) //throw SQL exception
+    fun getTask(taskId: Int): Task? = dao.queryForId(taskId)
 
-    fun deleteTask(task: Task) = dao.delete(task) //throw SQL exception
+    fun deleteTask(task: Task) = dao.delete(task)
 
-    fun addTask(task: Task) = dao.create(task) //
+    fun addTask(task: Task) = dao.create(task)
 
     fun updateTask(task: Task) = dao.update(task)
 
-    fun getLastTaskId(): Int {
-        val qb: QueryBuilder<Task, Int> = dao.queryBuilder()
-        qb.selectRaw("MAX(id)")
-        val results = dao.queryRaw(qb.prepareStatementString())
-        return 0
-    }
 }
