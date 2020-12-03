@@ -6,6 +6,7 @@ import com.example.taskete.data.Task
 import com.j256.ormlite.android.apptools.OpenHelperManager
 import com.j256.ormlite.dao.Dao
 import com.j256.ormlite.stmt.QueryBuilder
+import io.reactivex.rxjava3.core.Single
 
 class TasksDAO(context: Context) {
     private lateinit var dao: Dao<Task, Int>
@@ -15,9 +16,13 @@ class TasksDAO(context: Context) {
         dao = helper.getDao(Task::class.java)
     }
 
-    fun getTasks(): List<Task> = dao.queryForAll()
+    fun getTasks(): Single<List<Task>> {
+        return Single.just(dao.queryForAll())
+    }
 
-    fun getTask(taskId: Int): Task? = dao.queryForId(taskId)
+    fun getTask(taskId: Int): Single<Task?> {
+        return Single.just(dao.queryForId(taskId))
+    }
 
     fun deleteTask(task: Task) = dao.delete(task)
 

@@ -1,13 +1,11 @@
 package com.example.taskete
 
 import android.app.AlarmManager
-import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.SystemClock
 import android.util.Log
 import android.view.View
 import android.widget.EditText
@@ -16,16 +14,12 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
-import androidx.core.app.NotificationCompat
 import com.example.taskete.data.Priority
 import com.example.taskete.data.Task
 import com.example.taskete.db.TasksDAO
 import com.example.taskete.extensions.stringFromDate
 import com.example.taskete.helpers.KeyboardUtil
 import com.example.taskete.helpers.UIManager
-import com.example.taskete.notifications.TASK_NOTIFICATION
-import com.example.taskete.notifications.TASK_NOTIFICATION_ID
-import com.example.taskete.notifications.TaskNotifChannelManager
 import com.example.taskete.notifications.TaskReminderReceiver
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -34,8 +28,12 @@ import com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment
 import java.sql.SQLException
 import java.util.*
 
+//DEBUGGING
+private const val TAG_ACTIVITY = "TaskFormActivity"
+
 private const val TAG_DATETIME_FRAGMENT = "DatetimeFragment"
 private const val REMINDER_TIME_IN_MINUTES = 1
+const val REMINDER_INFO = "TaskInfo"
 
 class TaskFormActivity : AppCompatActivity() {
     private lateinit var inputTitle: TextInputLayout
@@ -50,20 +48,23 @@ class TaskFormActivity : AppCompatActivity() {
     private lateinit var cardDate: CardView
     private lateinit var btnClearDate: ImageButton
     private lateinit var calendar: GregorianCalendar
-    private var flagEdit: Boolean = false
+    private lateinit var channelId: String
+    private var selectedDate: Date? = null
+    private var selectedTask: Task? = null
+
     private var flagDateSeleccionada = false
     private val dao: TasksDAO by lazy {
         TasksDAO(this@TaskFormActivity.applicationContext)
     }
 
-    private var selectedDate: Date? = null
     private val taskRetrieved: Task? by lazy {
         val bundle: Bundle? = intent.extras
-        Log.d("TASKFORMACTIVITY", "Bundle size: ${bundle?.size()}")
         bundle?.getParcelable<Task>(TASK_SELECTED)
     }
 
-    private lateinit var channelId: String
+    private val alarmManager by lazy {
+        getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,9 +94,7 @@ class TaskFormActivity : AppCompatActivity() {
 
         btnSave.setOnClickListener {
             if (taskRetrieved != null) {
-                flagEdit = true
                 editTask()
-//                setReminder(taskRetrieved)
             } else {
                 createTask()
             }
@@ -103,6 +102,7 @@ class TaskFormActivity : AppCompatActivity() {
 
         btnClearDate.setOnClickListener {
             hideDateSelection()
+            cancelReminder()
         }
 
         btnDatePicker.setOnClickListener {
@@ -114,6 +114,7 @@ class TaskFormActivity : AppCompatActivity() {
     private fun hideDateSelection() {
         cardDate.visibility = View.GONE
         selectedDate = null
+        flagDateSeleccionada = false
     }
 
     private fun showDateSelection(date: Date?) {
@@ -123,7 +124,6 @@ class TaskFormActivity : AppCompatActivity() {
     }
 
     private fun showDateTimePicker() {
-
         //Construct datetime picker fragment
         var dateTimeFragment =
                 (supportFragmentManager.findFragmentByTag(TAG_DATETIME_FRAGMENT)
@@ -135,12 +135,15 @@ class TaskFormActivity : AppCompatActivity() {
 
 
         dateTimeFragment.setTimeZone(TimeZone.getDefault())
-        dateTimeFragment.set24HoursMode(true)
+        dateTimeFragment.set24HoursMode(false)
 
         calendar = GregorianCalendar()
 
-        calendar.set(2020, Calendar.JANUARY, 1)
+        //We need to get actual datetime??
+        calendar.timeInMillis = System.currentTimeMillis()
+        calendar.add(Calendar.HOUR, -1)
         dateTimeFragment.minimumDateTime = calendar.time
+
         calendar.set(2030, Calendar.JANUARY, 1)
         dateTimeFragment.maximumDateTime = calendar.time
 
@@ -148,12 +151,24 @@ class TaskFormActivity : AppCompatActivity() {
                 SwitchDateTimeDialogFragment.OnButtonClickListener {
 
             override fun onPositiveButtonClick(date: Date?) {
-                showDateSelection(date)
-                flagDateSeleccionada = true
+                //Debo verificar que el usuario no elija una fecha y hora menor a la actual
+                date?.let {
+                    calendar.timeInMillis = System.currentTimeMillis()
+                    calendar.add(Calendar.MINUTE, -1) //Give the user one minute to choose
+                    val currentTime = calendar.timeInMillis
+
+                    if (it.time >= calendar.timeInMillis) {
+                        showDateSelection(date)
+                        flagDateSeleccionada = true
+                    } else {
+                        UIManager.showMessage(this@TaskFormActivity, "The selected due time can't be lower than the current time")
+                        flagDateSeleccionada = false
+                    }
+                }
             }
 
             override fun onNegativeButtonClick(date: Date?) {
-                flagDateSeleccionada = false
+                //Nothing happens here
             }
         })
 
@@ -161,44 +176,52 @@ class TaskFormActivity : AppCompatActivity() {
 
     }
 
-    private fun createReminder(task: Task?): Notification {
-        channelId = TaskNotifChannelManager.createNotificationReminderChannel(this)
 
-        val notif = NotificationCompat.Builder(this, channelId)
-                .setContentTitle(task?.title)
-                .setContentText("Time to do this task")
-                .setSmallIcon(R.drawable.ic_app_icon)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setChannelId(channelId)
-                .setAutoCancel(true)
-                .build()
-
-        Log.d("TASKFORMACTIVITY", "ChannelId: $channelId , Notification: ${notif.extras}")
-        return notif;
-
-    }
-
-    private fun setReminder(task: Task?) {
+    private fun setReminder() {
         if (flagDateSeleccionada && selectedDate != null) {
-            val notification = createReminder(task)
+            val notifIntent = createReminderIntent()
 
-            val intent = Intent(this, TaskReminderReceiver::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_TASK_ON_HOME)
-                putExtra(TASK_SELECTED, task)
-                putExtra(TASK_NOTIFICATION_ID, task?.id)
-                putExtra(TASK_NOTIFICATION, notification)
+            //Definir una alarma 1 minuto antes de la fecha limite
+            selectedDate?.let {
+                calendar.timeInMillis = it.time
+                calendar.add(Calendar.MINUTE, -REMINDER_TIME_IN_MINUTES)
             }
 
-            val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
-            val secondsFromNow = System.currentTimeMillis() + REMINDER_TIME_IN_MINUTES * 20000 //Se le esta sumando 15 seg
-            val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            alarmManager.set(AlarmManager.RTC, secondsFromNow, pendingIntent)
+            val reminderTime = calendar.timeInMillis
+
+            //Setteo la alarma
+            alarmManager.set(AlarmManager.RTC_WAKEUP, reminderTime, notifIntent)
         }
     }
 
-    private fun updateFields() {
-        Log.d("TASKFORMACTIVITY", "Task retrieved: ${taskRetrieved?.title}")
+    private fun cancelReminder() {
+        val intent = createReminderIntent()
+        alarmManager.cancel(intent)
+        intent.cancel()
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
+        selectedTask?.id?.let {
+            notificationManager.cancel(it)
+            Log.d(TAG_ACTIVITY, "Notification was cancelled")
+        }
+    }
+
+    private fun createReminderIntent(): PendingIntent {
+        val taskId = selectedTask?.id
+
+        val notifIntent = Intent(this, TaskReminderReceiver::class.java).also {i ->
+            i.putExtra("TAREA", taskId)
+            i.putExtra("Test", "Esta llegando el valor")
+            i.putExtra(TASK_SELECTED, selectedTask)
+        }
+
+        Log.d(TAG_ACTIVITY, "Selected task: ${selectedTask?.id} | ${selectedTask?.title}")
+
+        return PendingIntent.getBroadcast(this, selectedTask?.id
+                ?: 0, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+    }
+
+    private fun updateFields() {
         etTitle.setText(taskRetrieved?.title)
         etDesc.setText(taskRetrieved?.description)
         val rbSelected = getCheckedPriority(taskRetrieved?.priority)
@@ -211,12 +234,14 @@ class TaskFormActivity : AppCompatActivity() {
     private fun editTask() {
         if (inputIsValid()) {
             try {
-                //En el caso de ser un update, el id del taskRetrieved es el que necesitamos
-                val updatedTask = generateTask()
-                dao.updateTask(updatedTask)
-                finish()
+                //TODO: RX to manipulate threads
+                val task = generateTask()
+                dao.updateTask(task)
+                selectedTask = task
+                setReminder()
             } catch (e: SQLException) {
                 UIManager.showMessage(this, "There was an error when updating the task")
+            } finally {
                 finish()
             }
         } else {
@@ -228,17 +253,19 @@ class TaskFormActivity : AppCompatActivity() {
         if (inputIsValid()) {
             try {
                 //Creo la tarea
-                val newTask = generateTask()
-                dao.addTask(newTask)
+                val task = generateTask()
+                dao.addTask(task)
 
-                //Obtener su id
+                //Voy a utilizar el id de la última task creada para generar una notificacion
                 val lastId = getLastTaskId()
-                val task = dao.getTask(lastId!!)
 
-                setReminder(task)
-                finish()
+                if (lastId != null) {
+                    selectedTask = dao.getTask(lastId)
+                    setReminder()
+                }
             } catch (e: SQLException) {
                 UIManager.showMessage(this, "There was an error when creating the task")
+            } finally {
                 finish()
             }
         } else {
@@ -254,17 +281,17 @@ class TaskFormActivity : AppCompatActivity() {
                     t.dueDate == selectedDate
         }
 
-        Log.d("TASKFORMACTIVITY", "Task Id: ${foundTask?.id}")
         return foundTask?.id
     }
 
     private fun generateTask(): Task {
+        //TODO: Test task generation without flag
         return Task(
-                if (flagEdit) taskRetrieved?.id else null,
+                taskRetrieved?.id,
                 getText(etTitle),
                 getText(etDesc),
                 setPriority(rgPriorities.checkedRadioButtonId),
-                if (flagEdit) taskRetrieved!!.isDone else false,
+                taskRetrieved?.isDone ?: false,
                 selectedDate
         )
     }

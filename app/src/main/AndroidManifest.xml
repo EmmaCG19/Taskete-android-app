@@ -21,12 +21,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TaskFormActivity"/>
+        <activity android:name=".TaskFormActivity" />
         <activity android:name=".AboutMeActivity" />
         <activity android:name=".preferences.PreferencesActivity" />
         <activity android:name=".MainActivity" />
 
-        <receiver android:name=".notifications.TaskReminderReceiver" />
+        <receiver
+            android:name=".notifications.TaskReminderReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <service
+            android:name=".notifications.NotificationService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 
 </manifest>

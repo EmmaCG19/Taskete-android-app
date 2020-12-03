@@ -3,6 +3,7 @@ package com.example.taskete
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
@@ -31,10 +32,10 @@ class MainActivity :
     private lateinit var toolbar: Toolbar
     private lateinit var fabAddTask: FloatingActionButton
     private lateinit var iconNoTasks: ImageView
+    private lateinit var selectedTasks: MutableList<Task>
     private var showAddFab: Boolean
     private var showCompletedTasks: Boolean
     private var tasks: List<Task>
-    private lateinit var selectedTasks: MutableList<Task>
     private var actionMode: ActionMode? = null
     private var isMultiSelect: Boolean = false
     private val preferences: SharedPreferences by lazy {
@@ -62,8 +63,7 @@ class MainActivity :
     }
 
     override fun onResume() {
-        checkPreferences()
-        disableSelection()
+        resetSelection()
         super.onResume()
     }
 
@@ -123,7 +123,7 @@ class MainActivity :
     private fun showTasks(tasks: List<Task>) {
         tasksAdapter.updateTasks(tasks)
 
-        if (tasks.size == 0) {
+        if (tasks.isEmpty()) {
             UIManager.hide(rvTasks)
             UIManager.show(iconNoTasks)
         } else {
@@ -151,13 +151,11 @@ class MainActivity :
         supportActionBar?.title = resources.getText(R.string.main_screen_title)
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
-    //Settings + Search bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.settingsItem -> launchSettingsActivity()
@@ -173,7 +171,6 @@ class MainActivity :
     }
 
     override fun onItemTouch(view: View?, position: Int) {
-
         if (isMultiSelect) {
             multiSelect(position)
         }
@@ -191,6 +188,13 @@ class MainActivity :
         launchTaskActivity(tasks[position])
     }
 
+    override fun onItemCheck(view: View?, position: Int) {
+        if (!showCompletedTasks) {
+            val tasks = dao.getTasks()
+            showPendingTasks()
+        }
+    }
+
     private fun multiSelect(position: Int) {
         if (actionMode != null) {
             val taskSelected = tasks[position]
@@ -203,11 +207,10 @@ class MainActivity :
 
             tasksAdapter.getSelectedTasks(selectedTasks)
 
-            actionMode?.title = if (selectedTasks.size > 0) "${selectedTasks.size}" else ""
+            actionMode?.title = if (selectedTasks.isNotEmpty()) "${selectedTasks.size}" else ""
 
-            if (selectedTasks.size == 0) {
+            if (selectedTasks.isEmpty()) {
                 disableSelection()
-
             }
         }
     }
@@ -238,20 +241,21 @@ class MainActivity :
     }
 
     override fun resetSelection() {
-        onResume()
+        checkPreferences()
+        disableSelection()
     }
 
     override fun showDeleteConfirmationDialog() {
         AlertDialog.Builder(this)
                 .setTitle(R.string.deleteDialogTitle)
                 .setMessage(R.string.deleteDialogDesc)
-                .setPositiveButton(R.string.deleteDialogOK, { _, _ ->
+                .setPositiveButton(R.string.deleteDialogOK) { _, _ ->
                     deleteSelectedTasks()
                     UIManager.showMessage(this, "${selectedTasks.size} tasks were deleted")
-                })
-                .setNegativeButton(R.string.deleteDialogNO, { _, _ ->
+                }
+                .setNegativeButton(R.string.deleteDialogNO) { _, _ ->
                     resetSelection()
-                })
+                }
                 .setCancelable(false)
                 .show()
     }

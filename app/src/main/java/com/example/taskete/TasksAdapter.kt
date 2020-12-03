@@ -66,6 +66,10 @@ class TasksAdapter(
                     tasks[position].isDone = isChecked
                     TasksDAO(context).updateTask(tasks[position])
                     strikeText(holder, tasks[position])
+
+                    if(isChecked){
+                        listener.onItemCheck(this, position)
+                    }
                 }
 
                 isChecked = tasks[position].isDone
@@ -92,7 +96,7 @@ class TasksAdapter(
             val actualDate = Date(System.currentTimeMillis())
             val diff = actualDate.compareTo(taskDate)
 
-            //Se cambia el calor de acuerdo a la proximidadnhbt
+            //Se cambia el calor de acuerdo a la proximidad
             if (diff > 0) {
                 dueDate.setTextColor(ContextCompat.getColor(context, R.color.colorPriorityHigh))
                 dueDate.setText(R.string.alertNoTimeLeft)
@@ -119,12 +123,6 @@ class TasksAdapter(
         }
     }
 
-    private fun showSelectedTasks() {
-        for (task in selectedTasks) {
-            Log.d("SELECTED_TASK", "ID: ${task.id}")
-        }
-    }
-
     fun updateTasks(newTasks: List<Task>) {
         tasks = newTasks
         selectedTasks = emptyList()
@@ -133,7 +131,6 @@ class TasksAdapter(
 
     fun getSelectedTasks(tasks: List<Task>) {
         selectedTasks = tasks
-        showSelectedTasks()
     }
 
     private fun strikeText(holder: TaskViewHolder, task: Task) {

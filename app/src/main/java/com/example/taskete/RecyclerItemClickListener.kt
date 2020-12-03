@@ -18,6 +18,7 @@ class RecyclerItemClickListener(
         fun onItemTouch(view: View?, position: Int)
         fun onItemLongPress(view: View?, position: Int)
         fun onItemDoubleTouch(view: View?, position: Int)
+        fun onItemCheck(view: View?, position: Int)
     }
 
     private val mGestureDetector: GestureDetector
