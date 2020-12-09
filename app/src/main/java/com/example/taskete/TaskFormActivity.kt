@@ -25,6 +25,9 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment
+import io.reactivex.rxjava3.core.SingleObserver
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
 import java.sql.SQLException
 import java.util.*
 
@@ -33,9 +36,12 @@ private const val TAG_ACTIVITY = "TaskFormActivity"
 
 private const val TAG_DATETIME_FRAGMENT = "DatetimeFragment"
 private const val REMINDER_TIME_IN_MINUTES = 1
+private const val DEFAULT_REQUEST_CODE = 1000
 const val REMINDER_INFO = "TaskInfo"
 
 class TaskFormActivity : AppCompatActivity() {
+
+    //TODO Use ViewBinding to reduce instantiations
     private lateinit var inputTitle: TextInputLayout
     private lateinit var inputDesc: TextInputLayout
     private lateinit var etTitle: TextInputEditText
@@ -49,10 +55,12 @@ class TaskFormActivity : AppCompatActivity() {
     private lateinit var btnClearDate: ImageButton
     private lateinit var calendar: GregorianCalendar
     private lateinit var channelId: String
-    private var selectedDate: Date? = null
-    private var selectedTask: Task? = null
+    private val compositeDisposable = CompositeDisposable()
+    private var selectedDate: Date?
+    private var selectedTask: Task?
+    private var tasks: List<Task>
+    private var flagDateSeleccionada: Boolean
 
-    private var flagDateSeleccionada = false
     private val dao: TasksDAO by lazy {
         TasksDAO(this@TaskFormActivity.applicationContext)
     }
@@ -64,6 +72,13 @@ class TaskFormActivity : AppCompatActivity() {
 
     private val alarmManager by lazy {
         getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    }
+
+    init {
+        selectedDate = null
+        selectedTask = null
+        tasks = emptyList<Task>()
+        flagDateSeleccionada = false
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,6 +130,7 @@ class TaskFormActivity : AppCompatActivity() {
         cardDate.visibility = View.GONE
         selectedDate = null
         flagDateSeleccionada = false
+        cancelReminder()
     }
 
     private fun showDateSelection(date: Date?) {
@@ -157,12 +173,15 @@ class TaskFormActivity : AppCompatActivity() {
                     calendar.add(Calendar.MINUTE, -1) //Give the user one minute to choose
                     val currentTime = calendar.timeInMillis
 
-                    if (it.time >= calendar.timeInMillis) {
+                    flagDateSeleccionada = if (it.time >= calendar.timeInMillis) {
                         showDateSelection(date)
-                        flagDateSeleccionada = true
+                        true
                     } else {
-                        UIManager.showMessage(this@TaskFormActivity, "The selected due time can't be lower than the current time")
-                        flagDateSeleccionada = false
+                        UIManager.showMessage(
+                                this@TaskFormActivity,
+                                "The selected due time can't be lower than the current time"
+                        )
+                        false
                     }
                 }
             }
@@ -179,7 +198,7 @@ class TaskFormActivity : AppCompatActivity() {
 
     private fun setReminder() {
         if (flagDateSeleccionada && selectedDate != null) {
-            val notifIntent = createReminderIntent()
+            val intent = createReminder()
 
             //Definir una alarma 1 minuto antes de la fecha limite
             selectedDate?.let {
@@ -190,12 +209,12 @@ class TaskFormActivity : AppCompatActivity() {
             val reminderTime = calendar.timeInMillis
 
             //Setteo la alarma
-            alarmManager.set(AlarmManager.RTC_WAKEUP, reminderTime, notifIntent)
+            alarmManager.set(AlarmManager.RTC_WAKEUP, reminderTime, intent)
         }
     }
 
     private fun cancelReminder() {
-        val intent = createReminderIntent()
+        val intent = createReminder()
         alarmManager.cancel(intent)
         intent.cancel()
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
@@ -206,10 +225,10 @@ class TaskFormActivity : AppCompatActivity() {
         }
     }
 
-    private fun createReminderIntent(): PendingIntent {
+    private fun createReminder(): PendingIntent {
         val taskId = selectedTask?.id
 
-        val notifIntent = Intent(this, TaskReminderReceiver::class.java).also {i ->
+        val notifIntent = Intent(this, TaskReminderReceiver::class.java).also { i ->
             i.putExtra("TAREA", taskId)
             i.putExtra("Test", "Esta llegando el valor")
             i.putExtra(TASK_SELECTED, selectedTask)
@@ -217,8 +236,10 @@ class TaskFormActivity : AppCompatActivity() {
 
         Log.d(TAG_ACTIVITY, "Selected task: ${selectedTask?.id} | ${selectedTask?.title}")
 
-        return PendingIntent.getBroadcast(this, selectedTask?.id
-                ?: 0, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getBroadcast(
+                this, selectedTask?.id
+                ?: DEFAULT_REQUEST_CODE, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT
+        )
     }
 
     private fun updateFields() {
@@ -234,11 +255,13 @@ class TaskFormActivity : AppCompatActivity() {
     private fun editTask() {
         if (inputIsValid()) {
             try {
-                //TODO: RX to manipulate threads
-                val task = generateTask()
-                dao.updateTask(task)
-                selectedTask = task
+                generateTask().also { task ->
+                    selectedTask = task
+                    dao.updateTask(task).subscribe()
+                }
+
                 setReminder()
+
             } catch (e: SQLException) {
                 UIManager.showMessage(this, "There was an error when updating the task")
             } finally {
@@ -252,17 +275,17 @@ class TaskFormActivity : AppCompatActivity() {
     private fun createTask() {
         if (inputIsValid()) {
             try {
-                //Creo la tarea
                 val task = generateTask()
-                dao.addTask(task)
+                dao.addTask(task).subscribe()
 
-                //Voy a utilizar el id de la última task creada para generar una notificacion
-                val lastId = getLastTaskId()
+                getLastTask().also { task ->
+                    selectedTask = task
 
-                if (lastId != null) {
-                    selectedTask = dao.getTask(lastId)
-                    setReminder()
+                    if (task != null) {
+                        setReminder()
+                    }
                 }
+
             } catch (e: SQLException) {
                 UIManager.showMessage(this, "There was an error when creating the task")
             } finally {
@@ -273,19 +296,56 @@ class TaskFormActivity : AppCompatActivity() {
         }
     }
 
-    private fun getLastTaskId(): Int? {
-        val foundTask: Task? = dao.getTasks().firstOrNull { t ->
+    private fun getTask(id: Int) {
+        dao.getTask(id)
+                .subscribe(object : SingleObserver<Task?> {
+                    override fun onSubscribe(d: Disposable?) {
+                        compositeDisposable.add(d)
+                    }
+
+                    override fun onSuccess(task: Task?) {
+                        selectedTask = task
+                    }
+
+                    override fun onError(e: Throwable?) {
+                        Log.d(TAG_ACTIVITY, "Error when getting task ", e)
+                    }
+
+                })
+    }
+
+    private fun getTasks() {
+        dao.getTasks()
+                .subscribe(object : SingleObserver<List<Task>> {
+                    override fun onSubscribe(d: Disposable?) {
+                        Log.d(TAG_ACTIVITY, "An Observer subscribed to an observable")
+                        compositeDisposable.add(d)
+                    }
+
+                    override fun onSuccess(listOfTasks: List<Task>) {
+                        Log.d(TAG_ACTIVITY, "The tasks were retrieved successfully")
+                        tasks = listOfTasks
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d(TAG_ACTIVITY, "Error when getting tasks ", e)
+                    }
+
+                })
+    }
+
+    private fun getLastTask(): Task? {
+        getTasks()
+
+        return tasks.firstOrNull { t ->
             t.title == getText(etTitle) &&
                     t.description == getText(etDesc) &&
                     t.priority == setPriority(rgPriorities.checkedRadioButtonId) &&
                     t.dueDate == selectedDate
         }
-
-        return foundTask?.id
     }
 
     private fun generateTask(): Task {
-        //TODO: Test task generation without flag
         return Task(
                 taskRetrieved?.id,
                 getText(etTitle),
@@ -329,4 +389,10 @@ class TaskFormActivity : AppCompatActivity() {
     private fun showErrorAlert() {
         UIManager.showMessage(this, "One or more errors have ocurred")
     }
+
+    override fun onStop() {
+        super.onStop()
+        compositeDisposable.clear()
+    }
 }
+

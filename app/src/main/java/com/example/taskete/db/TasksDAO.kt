@@ -6,7 +6,9 @@ import com.example.taskete.data.Task
 import com.j256.ormlite.android.apptools.OpenHelperManager
 import com.j256.ormlite.dao.Dao
 import com.j256.ormlite.stmt.QueryBuilder
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 class TasksDAO(context: Context) {
     private lateinit var dao: Dao<Task, Int>
@@ -17,17 +19,34 @@ class TasksDAO(context: Context) {
     }
 
     fun getTasks(): Single<List<Task>> {
-        return Single.just(dao.queryForAll())
+        return Single.fromCallable { dao.queryForAll() }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
     }
 
     fun getTask(taskId: Int): Single<Task?> {
-        return Single.just(dao.queryForId(taskId))
+        return Single.fromCallable { dao.queryForId(taskId) }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
     }
 
-    fun deleteTask(task: Task) = dao.delete(task)
+    fun deleteTask(task: Task): Single<Int> {
+        return Single.fromCallable { dao.delete(task) }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+    }
 
-    fun addTask(task: Task) = dao.create(task)
+    fun addTask(task: Task): Single<Int> {
+        return Single.fromCallable { dao.create(task) }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+    }
 
-    fun updateTask(task: Task) = dao.update(task)
+    fun updateTask(task: Task): Single<Int> {
+        return Single.fromCallable { dao.update(task) }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+    }
+
 
 }

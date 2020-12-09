@@ -3,6 +3,7 @@ package com.example.taskete
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -23,7 +24,7 @@ import java.util.Date
 
 
 class TasksAdapter(
-        val listener: RecyclerItemClickListener.OnItemClickListener
+        private val listener: RecyclerItemClickListener.OnItemClickListener
 ) : RecyclerView.Adapter<TasksAdapter.TaskViewHolder>() {
 
     private var tasks: List<Task> = emptyList<Task>()
@@ -64,12 +65,15 @@ class TasksAdapter(
                 setOnCheckedChangeListener(null)
                 setOnCheckedChangeListener { _, isChecked ->
                     tasks[position].isDone = isChecked
-                    TasksDAO(context).updateTask(tasks[position])
+
+                    TasksDAO(context).updateTask(tasks[position]).subscribe()
                     strikeText(holder, tasks[position])
 
-                    if(isChecked){
-                        listener.onItemCheck(this, position)
-                    }
+                    Handler().postDelayed({
+                        if(isChecked){
+                            listener.onItemCheck(this, position)
+                        }
+                    },500)
                 }
 
                 isChecked = tasks[position].isDone

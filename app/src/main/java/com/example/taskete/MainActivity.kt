@@ -3,12 +3,15 @@ package com.example.taskete
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
+import android.widget.ProgressBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.Group
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,9 +20,17 @@ import com.example.taskete.db.TasksDAO
 import com.example.taskete.helpers.UIManager
 import com.example.taskete.preferences.PreferencesActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observer
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.core.SingleObserver
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 
 const val TASK_SELECTED = "Task_selected"
+private const val TAG_ACTIVITY = "MainActivity"
 private const val PREFERENCE_ADDTASK = "swShowAddBtn"
 private const val PREFERENCE_SHOWCOMPLETE = "swPrefShowCompletedTasks"
 
@@ -33,13 +44,18 @@ class MainActivity :
     private lateinit var fabAddTask: FloatingActionButton
     private lateinit var iconNoTasks: ImageView
     private lateinit var selectedTasks: MutableList<Task>
+    private lateinit var loadingBar: ProgressBar
+    private lateinit var taskLayout: Group
     private var showAddFab: Boolean
     private var showCompletedTasks: Boolean
     private var tasks: List<Task>
     private var actionMode: ActionMode? = null
     private var isMultiSelect: Boolean = false
-    private val preferences: SharedPreferences by lazy {
-        PreferenceManager.getDefaultSharedPreferences(this)
+    private val compositeDisposable = CompositeDisposable()
+    private val preferences: Single<SharedPreferences> by lazy {
+        Single.fromCallable { PreferenceManager.getDefaultSharedPreferences(this) }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
     }
 
     private val dao: TasksDAO by lazy {
@@ -73,6 +89,8 @@ class MainActivity :
         rvTasks = findViewById(R.id.rvTasks)
         rvTasks.adapter = tasksAdapter
         iconNoTasks = findViewById(R.id.iconNoTasks)
+        loadingBar = findViewById(R.id.loadingBar)
+        taskLayout = findViewById(R.id.taskLayout)
 
         fabAddTask.setOnClickListener {
             launchTaskActivity(null)
@@ -83,13 +101,56 @@ class MainActivity :
     }
 
     private fun checkPreferences() {
-        handleFabAddVisibility()
-        handleShowCompletedTasks()
+        preferences.subscribe(object : SingleObserver<SharedPreferences> {
+            override fun onSubscribe(d: Disposable?) {
+                showProgressBar()
+                compositeDisposable.add(d)
+            }
+
+            override fun onSuccess(t: SharedPreferences) {
+                showAddFab = t.getBoolean(PREFERENCE_ADDTASK, true)
+                showCompletedTasks = t.getBoolean(PREFERENCE_SHOWCOMPLETE, true)
+
+                loadTasks()
+
+                //TODO: FabAdd preference must be shown after while progress bar is reloading
+                Handler().postDelayed({
+                    handleFabAddVisibility()
+                }, 1200)
+            }
+
+            override fun onError(e: Throwable?) {
+                Log.d(TAG_ACTIVITY, "The general preferences couldn't be retrieved", e)
+            }
+
+        })
     }
 
-    private fun handleFabAddVisibility() {
-        showAddFab = preferences.getBoolean(PREFERENCE_ADDTASK, true)
 
+    private fun loadTasks() {
+        dao.getTasks()
+                .subscribeOn(Schedulers.io()) //Smart thread allocating
+                .observeOn(AndroidSchedulers.mainThread()) //Always observe on the main thread
+                .subscribe(object : SingleObserver<List<Task>> {
+                    override fun onSubscribe(d: Disposable?) {
+                        compositeDisposable.add(d)
+                    }
+
+                    override fun onSuccess(listOfTasks: List<Task>) {
+                        tasks = listOfTasks
+                        hideProgressBar()
+                        handleShowCompletedTasks()
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d(TAG_ACTIVITY, "Error when getting tasks ", e)
+                    }
+
+                })
+    }
+
+
+    private fun handleFabAddVisibility() {
         if (showAddFab) {
             UIManager.show(fabAddTask)
         } else {
@@ -97,10 +158,8 @@ class MainActivity :
         }
     }
 
-    private fun handleShowCompletedTasks() {
-        showCompletedTasks = preferences.getBoolean(PREFERENCE_SHOWCOMPLETE, true)
-        tasks = dao.getTasks()
 
+    private fun handleShowCompletedTasks() {
         if (showCompletedTasks) {
             showAllTasks()
         } else {
@@ -108,6 +167,7 @@ class MainActivity :
         }
 
     }
+
 
     private fun showPendingTasks() {
         tasks = tasks.filter { t ->
@@ -138,13 +198,6 @@ class MainActivity :
         )
     }
 
-    private fun launchTaskActivity(task: Task?) {
-        Intent(this, TaskFormActivity::class.java).apply {
-            putExtra(TASK_SELECTED, task)
-            startActivity(this)
-        }
-    }
-
     private fun setupToolbar() {
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -162,6 +215,13 @@ class MainActivity :
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun launchTaskActivity(task: Task?) {
+        Intent(this, TaskFormActivity::class.java).apply {
+            putExtra(TASK_SELECTED, task)
+            startActivity(this)
+        }
     }
 
     private fun launchSettingsActivity() {
@@ -190,8 +250,7 @@ class MainActivity :
 
     override fun onItemCheck(view: View?, position: Int) {
         if (!showCompletedTasks) {
-            val tasks = dao.getTasks()
-            showPendingTasks()
+            loadTasks()
         }
     }
 
@@ -235,7 +294,7 @@ class MainActivity :
 
     private fun deleteSelectedTasks() {
         selectedTasks.forEach { t ->
-            dao.deleteTask(t)
+            dao.deleteTask(t).subscribe()
         }
         resetSelection()
     }
@@ -260,5 +319,18 @@ class MainActivity :
                 .show()
     }
 
+    private fun showProgressBar() {
+        UIManager.show(loadingBar)
+        UIManager.hide(taskLayout)
+    }
 
+    private fun hideProgressBar() {
+        UIManager.hide(loadingBar)
+        UIManager.show(taskLayout)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        compositeDisposable.clear()
+    }
 }
