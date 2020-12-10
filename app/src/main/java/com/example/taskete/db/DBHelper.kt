@@ -45,7 +45,6 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
     }
 
     private fun createUsersTable() {
-        //Add a Users table
         TableUtils.createTableIfNotExists(connectionSource, User::class.java)
         UsersDAO(context)
                 .executeCustomQuery(
@@ -89,15 +88,16 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
 
         //Copy values from oldTable to the new
         dao.executeCustomQuery(
-                "INSERT INTO `Tasks_new`(id, title, description, priority, isDone, dueDate, userId) " +
-                        "SELECT" +
-                        "id, " +
-                        "title, " +
-                        "description, " +
-                        "priority, " +
-                        "isDone, " +
-                        "dueDate, " +
-                        "1 " +
+                "INSERT INTO `Tasks_new`" +
+                            "(id, title, description, priority, isDone, dueDate, userId) " +
+                        "SELECT(" +
+                            "id, " +
+                            "title, " +
+                            "description, " +
+                            "priority, " +
+                            "isDone, " +
+                            "dueDate, " +
+                            "1)" +
                         "FROM `Tasks`;"
         )
 
