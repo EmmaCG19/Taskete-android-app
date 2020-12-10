@@ -1,61 +1,55 @@
 package com.example.taskete.db
 
 import android.content.Context
-import android.util.Log
-import com.example.taskete.data.Task
+import com.example.taskete.data.User
 import com.j256.ormlite.android.apptools.OpenHelperManager
 import com.j256.ormlite.dao.Dao
-import com.j256.ormlite.stmt.QueryBuilder
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 
-class TasksDAO(context: Context) {
-    private var dao: Dao<Task, Int>
+class UsersDAO(context: Context) {
+    private var dao: Dao<User, Int>
 
     init {
         val helper = OpenHelperManager.getHelper(context, DBHelper::class.java)
-        dao = helper.getDao(Task::class.java)
+        dao = helper.getDao(User::class.java)
     }
 
-    fun getTasks(): Single<List<Task>> {
+    fun getUsers(): Single<List<User>> {
         return Single.fromCallable { dao.queryForAll() }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
     }
 
-    fun getTask(taskId: Int): Single<Task?> {
-        return Single.fromCallable { dao.queryForId(taskId) }
+    fun getUser(userId: Int): Single<User?> {
+        return Single.fromCallable { dao.queryForId(userId) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
     }
 
-    fun deleteTask(task: Task): Single<Int> {
-        return Single.fromCallable { dao.delete(task) }
+    fun deleteUser(user: User): Single<Int> {
+        return Single.fromCallable { dao.delete(user) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
     }
 
-    fun addTask(task: Task): Single<Int> {
-        return Single.fromCallable { dao.create(task) }
+    fun addUser(user: User): Single<Int> {
+        return Single.fromCallable { dao.create(user) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
     }
 
-    fun updateTask(task: Task): Single<Int> {
-        return Single.fromCallable { dao.update(task) }
+    fun updateUser(user: User): Single<Int> {
+        return Single.fromCallable { dao.update(user) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
     }
 
-    //Testing
-    fun executeCustomQuery(query: String) =  dao.executeRaw(query)
-
-
-//    fun executeCustomQuery(query: String): Single<Int> {
-//        return Single.fromCallable { dao.executeRaw(query) }
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//    }
+    fun executeCustomQuery(query: String): Single<Int> {
+        return Single.fromCallable { dao.executeRaw(query) }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+    }
 
 }

@@ -11,6 +11,7 @@ import com.example.taskete.R
 
 class PreferencesFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        //TODO: Strict mode is yelling here!
         setPreferencesFromResource(R.xml.preferences, rootKey)
         launchAboutMeActivity()
     }
