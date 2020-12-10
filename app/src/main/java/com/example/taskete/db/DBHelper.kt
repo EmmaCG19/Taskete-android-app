@@ -33,6 +33,10 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
             upgradeToVersion2()
         }
 
+        //Write config file??
+//        OrmLiteConfigUtil.
+
+
     }
 
     private fun upgradeToVersion2() {
@@ -76,29 +80,21 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
         //Create new table with FK column
         dao.executeCustomQuery(
                 "CREATE TABLE `Tasks_new` (" +
-                        "id INTEGER PRIMARY KEY," +
-                        "title TEXT," +
-                        "description TEXT," +
-                        "priority INTEGER," +
-                        "isDone INTEGER," +
-                        "dueDate TEXT," +
-                        "userId INTEGER," +
-                        "FOREIGN KEY (userId) REFERENCES Users(id)" +
+                            "id INTEGER PRIMARY KEY," +
+                            "title TEXT NOT NULL," +
+                            "description TEXT," +
+                            "priority INTEGER NOT NULL," +
+                            "isDone INTEGER NOT NULL," +
+                            "dueDate INTEGER," +
+                            "userId INTEGER NOT NULL," +
+                            "FOREIGN KEY (userId) REFERENCES Users(id)" +
                         ");"
         )
 
         //Copy values from oldTable to the new
         dao.executeCustomQuery(
-                "INSERT INTO `Tasks_new`(id, title, description, priority, isDone, dueDate, userId) " +
-                        "SELECT(" +
-                        "id, " +
-                        "title, " +
-                        "description, " +
-                        "priority, " +
-                        "isDone, " +
-                        "dueDate, " +
-                        "1 ) "+
-                        "FROM `Tasks`;"
+        "INSERT INTO `Tasks_new`(id, title, description, priority, isDone, dueDate, userId) " +
+                "SELECT(id, title, description, priority, isDone, dueDate, 1) FROM `Tasks`;"
         )
 
         //Drop old table

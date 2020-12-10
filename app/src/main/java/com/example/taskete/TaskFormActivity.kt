@@ -16,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import com.example.taskete.data.Priority
 import com.example.taskete.data.Task
-import com.example.taskete.data.User
 import com.example.taskete.db.TasksDAO
 import com.example.taskete.extensions.stringFromDate
 import com.example.taskete.helpers.KeyboardUtil
@@ -61,7 +60,6 @@ class TaskFormActivity : AppCompatActivity() {
     private var selectedTask: Task?
     private var tasks: List<Task>
     private var flagDateSeleccionada: Boolean
-    private var defaultUser: User
 
     private val dao: TasksDAO by lazy {
         TasksDAO(this@TaskFormActivity.applicationContext)
@@ -81,7 +79,6 @@ class TaskFormActivity : AppCompatActivity() {
         selectedTask = null
         tasks = emptyList<Task>()
         flagDateSeleccionada = false
-        defaultUser = User(1, "Test", "test@gmail.com", "1234", null, tasks)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
