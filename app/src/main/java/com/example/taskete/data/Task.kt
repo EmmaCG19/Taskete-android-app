@@ -20,13 +20,12 @@ class Task(
         @DatabaseField
         var isDone: Boolean,
         @DatabaseField
-        var dueDate: Date?,
-        @DatabaseField(columnName = "userId", foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true, canBeNull = false)
-        var user: User?
+        var dueDate: Date?
 ) : Parcelable {
 
     //Default constructor that ORMLite needs
-    constructor() : this(null, "", "", Priority.NOTASSIGNED, false, null, null)
+    constructor() : this(null, "", "", Priority.NOTASSIGNED, false, null)
+
 }
 
 enum class Priority {
@@ -35,3 +34,38 @@ enum class Priority {
     MEDIUM,
     HIGH
 }
+
+//class Task(
+//        @DatabaseField(id = true)
+//        var id: Int? = null,
+//        @DatabaseField
+//        var title: String,
+//        @DatabaseField
+//        var description: String,
+//        @DatabaseField
+//        var priority: Priority,
+//        @DatabaseField
+//        var isDone: Boolean,
+//        @DatabaseField
+//        var dueDate: Date?,
+//        @DatabaseField(columnName = "userId", foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true, canBeNull = false)
+//        var user: User?
+//) : Parcelable {
+
+
+/*
+* class Task(
+        @DatabaseField(id = true)
+        var id: Int? = null,
+        @DatabaseField
+        var title: String,
+        @DatabaseField
+        var description: String,
+        @DatabaseField
+        var priority: Priority,
+        @DatabaseField
+        var isDone: Boolean,
+        @DatabaseField
+        var dueDate: Date?
+) : Parcelable {
+* */

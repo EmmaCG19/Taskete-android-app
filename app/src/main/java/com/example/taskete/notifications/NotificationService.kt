@@ -64,7 +64,7 @@ class NotificationService : JobIntentService() {
     }
 
     private fun getSelectedTask(intent: Intent): Task? {
-        return intent?.extras?.getParcelable<Task>(TASK_SELECTED)
+        return intent.extras?.getParcelable<Task>(TASK_SELECTED)
     }
 
     private fun createNotification(task: Task?): Notification {
