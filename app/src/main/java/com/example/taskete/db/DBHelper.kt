@@ -30,7 +30,7 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
     ) {
 
         if (oldVersion < 2) {
-//            upgradeToVersion2()
+            upgradeToVersion2()
         }
 
     }
@@ -90,14 +90,14 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
         //Copy values from oldTable to the new
         dao.executeCustomQuery(
                 "INSERT INTO `Tasks_new`(id, title, description, priority, isDone, dueDate, userId) " +
-                        "SELECT" +
+                        "SELECT(" +
                         "id, " +
                         "title, " +
                         "description, " +
                         "priority, " +
                         "isDone, " +
                         "dueDate, " +
-                        "1 " +
+                        "1 ) "+
                         "FROM `Tasks`;"
         )
 
