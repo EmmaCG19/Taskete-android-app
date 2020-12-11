@@ -2,7 +2,7 @@
     <string name="app_name">Taskete</string>
     <string name="main_screen_title">Tasks</string>
 
-    <!--Form-->
+    <!--Task Form-->
     <string name="title_input_hint">Task name</string>
     <string name="desc_input_hint">Task description</string>
     <string name="priority_input">Priority...</string>
@@ -48,5 +48,21 @@
     <string name="channelId">1</string>
     <string name="channelName">Task Reminder</string>
     <string name="channelDesc">You will be notified about the tasks that must be completed</string>
+
+    <!--Login form-->
+    <string name="loginTitle">Welcome</string>
+    <string name="loginUsername">Username</string>
+    <string name="loginMail">Email</string>
+    <string name="loginPassword">Password</string>
+    <string name="loginButton">Login</string>
+    <string name="loginRegister">No account? Register here!</string>
+
+    <!--Register form-->
+    <string name="registerTitle">Registration</string>
+    <string name="registerUsername">Username</string>
+    <string name="registerMail">Email</string>
+    <string name="registerPassword">Password</string>
+    <string name="registerConfirmPass">Confirm Password</string>
+    <string name="registerButton">Create account</string>
 
 </resources>
