@@ -52,4 +52,14 @@ class UsersDAO(context: Context) {
                 .observeOn(AndroidSchedulers.mainThread())
     }
 
+    fun executeCustomQueries(queries: List<String>): Single<Unit> {
+        return Single.fromCallable {
+            for (query in queries) {
+                dao.executeRaw(query)
+            }
+        }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+    }
+
 }

@@ -20,11 +20,13 @@ class Task(
         @DatabaseField
         var isDone: Boolean,
         @DatabaseField
-        var dueDate: Date?
+        var dueDate: Date?,
+        @DatabaseField(columnName = "userId", foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true, canBeNull = false)
+        var user: User?
 ) : Parcelable {
 
     //Default constructor that ORMLite needs
-    constructor() : this(null, "", "", Priority.NOTASSIGNED, false, null)
+    constructor() : this(null, "", "", Priority.NOTASSIGNED, false, null, null)
 }
 
 enum class Priority {

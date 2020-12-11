@@ -48,14 +48,20 @@ class TasksDAO(context: Context) {
                 .observeOn(AndroidSchedulers.mainThread())
     }
 
-    //Testing
-    fun executeCustomQuery(query: String) =  dao.executeRaw(query)
+    fun executeCustomQuery(query: String): Single<Int> {
+        return Single.fromCallable { dao.executeRaw(query) }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+    }
 
-
-//    fun executeCustomQuery(query: String): Single<Int> {
-//        return Single.fromCallable { dao.executeRaw(query) }
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//    }
+    fun executeCustomQueries(queries: List<String>): Single<Unit> {
+        return Single.fromCallable {
+            for (query in queries) {
+                dao.executeRaw(query)
+            }
+        }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+    }
 
 }

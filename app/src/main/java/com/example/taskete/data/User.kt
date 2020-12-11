@@ -4,12 +4,9 @@ import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.RequiresApi
-import com.j256.ormlite.dao.ForeignCollection
-import com.j256.ormlite.field.DataType
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.field.ForeignCollectionField
 import com.j256.ormlite.table.DatabaseTable
-import kotlinx.android.parcel.Parcelize
 
 @DatabaseTable(tableName = "Users")
 class User(
@@ -27,7 +24,6 @@ class User(
         var tasks: Collection<Task>
 ) : Parcelable {
 
-
     constructor() : this(null, "", "", "", null, arrayListOf<Task>())
 
     constructor(parcel: Parcel) : this(
@@ -40,6 +36,7 @@ class User(
                 parcel.readList(this, Task::class.java.classLoader)
             })
 
+    //TODO: CIRCULAR REFERENCE WITH WRITE PARCELABLE
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeValue(id)

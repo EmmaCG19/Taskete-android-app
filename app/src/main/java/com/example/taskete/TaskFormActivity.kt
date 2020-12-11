@@ -355,7 +355,8 @@ class TaskFormActivity : AppCompatActivity() {
                 getText(etDesc),
                 setPriority(rgPriorities.checkedRadioButtonId),
                 taskRetrieved?.isDone ?: false,
-                selectedDate
+                selectedDate,
+                defaultUser
         )
     }
 
