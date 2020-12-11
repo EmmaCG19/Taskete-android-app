@@ -14,7 +14,7 @@ class User(
         var id: Int? = null,
         @DatabaseField
         var username: String,
-        @DatabaseField
+        @DatabaseField(unique = true)
         var mail: String,
         @DatabaseField
         var password: String,

@@ -41,6 +41,8 @@ class LoginFormActivity : AppCompatActivity() {
     //Validar las credenciales y generar un "token" (Usuario)
     //Pasarle a la MainActivity el token
     private fun validateCredentials() {
+
+
     }
 
     //Ir al register form para registrar
@@ -48,3 +50,34 @@ class LoginFormActivity : AppCompatActivity() {
         TODO("Not yet implemented")
     }
 }
+
+
+//LOGIN-FORM
+//    private fun updateUserId() {
+//
+//        //Get all users
+//        usersDAO.getUsers().subscribe(object : SingleObserver<List<User>> {
+//            override fun onSubscribe(d: Disposable?) {
+//                compositeDisposable.add(d)
+//            }
+//
+//            override fun onSuccess(t: List<User>) {
+//                //Get user with same credentials
+//                newUser.id = t.filter { user ->
+//                    user.mail.equals(newUser.mail) &&
+//                            user.password.equals(newUser.password) &&
+//                            user.username.equals(newUser.username)
+//                }.firstOrNull()?.id
+//
+//            }
+//
+//            override fun onError(e: Throwable?) {
+//                Log.d(TAG_ACTIVITY, "Error retrieving users because $e")
+//            }
+//
+//        })
+//    }
+//
+//
+//    //If the user doesn't exist,
+//    private fun filter()

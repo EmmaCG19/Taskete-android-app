@@ -2,8 +2,25 @@ package com.example.taskete
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
+import android.widget.EditText
+import androidx.core.widget.doAfterTextChanged
+import androidx.core.widget.doOnTextChanged
+import com.example.taskete.data.Task
+import com.example.taskete.data.User
+import com.example.taskete.db.UsersDAO
+import com.example.taskete.helpers.UIManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import io.reactivex.rxjava3.core.SingleObserver
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
+import java.sql.SQLException
+
+private const val TAG_ACTIVITY = "RegisterFormActivity"
 
 class RegisterFormActivity : AppCompatActivity() {
     private lateinit var etUsername: TextInputEditText
@@ -11,6 +28,13 @@ class RegisterFormActivity : AppCompatActivity() {
     private lateinit var etPass: TextInputEditText
     private lateinit var etConfirmPass: TextInputEditText
     private lateinit var btnRegister: MaterialButton
+    private lateinit var newUser: User
+    private lateinit var users: List<User>
+    private var compositeDisposable = CompositeDisposable()
+
+    private val usersDAO: UsersDAO by lazy {
+        UsersDAO(this@RegisterFormActivity.applicationContext)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,18 +49,188 @@ class RegisterFormActivity : AppCompatActivity() {
         etConfirmPass = findViewById(R.id.etRegisterConfirmPass)
         btnRegister = findViewById(R.id.btnRegister)
 
-        btnRegister.setOnClickListener{
+        btnRegister.setOnClickListener {
             createAccount()
         }
+
+        loadUsers()
     }
 
-    private fun validateCredentials() {
-        TODO("Not yet implemented")
+    private fun loadUsers() {
+        usersDAO.getUsers().subscribe(object : SingleObserver<List<User>> {
+            override fun onSubscribe(d: Disposable?) {
+                compositeDisposable.add(d)
+            }
+
+            override fun onSuccess(t: List<User>) {
+                users = t
+            }
+
+            override fun onError(e: Throwable?) {
+                Log.d(TAG_ACTIVITY, "Error when retrieving users because $e")
+            }
+
+        })
     }
 
-    private fun createAccount(){
-        TODO("Not yet implemented")
+    private fun createAccount() {
+        if (validateCredentials()) {
+            registerUser()
+        } else
+            showValidationErrorMessage()
     }
 
+    private fun registerUser() {
+        newUser = User(
+                null,
+                getText(etUsername),
+                getText(etMail),
+                getText(etPass),
+                null, //If avatar is null, add generic profile picture in Navigation Drawer
+                arrayListOf<Task>()
+        )
+
+        try {
+            addUser()
+        } catch (e: SQLException) {
+            showRegisterErrorMessage()
+        }
+
+    }
+
+    private fun addUser() {
+        usersDAO.addUser(newUser).subscribe(object : SingleObserver<Int> {
+            override fun onSubscribe(d: Disposable) {
+                compositeDisposable.add(d)
+            }
+
+            override fun onSuccess(t: Int) {
+                showRegisterSuccessMessage()
+            }
+
+            override fun onError(e: Throwable) {
+                showRegisterErrorMessage()
+            }
+
+        })
+    }
+
+
+    private fun showRegisterSuccessMessage() {
+        UIManager.showMessage(this, resources.getText(R.string.registerSuccess) as String)
+
+        Handler().postDelayed({
+            finish()
+        }, 1000)
+    }
+
+    private fun showRegisterErrorMessage() {
+        UIManager.showMessage(this, resources.getText(R.string.registerError) as String)
+
+        Handler().postDelayed({
+            finish()
+        }, 1000)
+    }
+
+    private fun showValidationErrorMessage() {
+        UIManager.showMessage(this, resources.getText(R.string.registerFieldsErrors) as String)
+    }
+
+    private fun validateCredentials(): Boolean = usernameIsValid() and (mailIsValid()) and (passIsValid())
+
+    private fun usernameIsValid(): Boolean {
+        val username = getText(etUsername)
+
+        return if (username.trim().isNullOrEmpty()) {
+            etUsername.error = resources.getText(R.string.usernameEmptyError)
+            false
+        } else
+            true
+    }
+
+    private fun mailIsValid(): Boolean {
+        val mail = getText(etMail)
+        val validMailRegex = Regex("(?:[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])")
+
+        //Reset error field
+        etMail.doAfterTextChanged {
+            if (etMail.error != null) {
+                etMail.error = null
+            }
+        }
+
+        //Not empty
+        if (mail.trim().isNullOrEmpty()) {
+            etMail.error = resources.getText(R.string.mailEmptyError)
+            return false
+        }
+
+        //Valid mail Regex
+        if (!mail.contains(validMailRegex)) {
+            etMail.error = resources.getText(R.string.mailRegexError)
+            return false
+        }
+
+        //Check mail existence
+        if(isMailRegistered(mail)){
+            etMail.error = resources.getText(R.string.mailExistentError)
+            return false
+        }
+
+        return true
+    }
+
+    private fun passIsValid(): Boolean {
+        val pass = getText(etPass)
+        val confirmPass = getText(etConfirmPass)
+
+        //Reset password field
+        etPass.doAfterTextChanged {
+            if (etPass.error != null) {
+                    etPass.error = null
+                }
+        }
+
+        etConfirmPass.doAfterTextChanged {
+            if (etConfirmPass.error != null) {
+                etConfirmPass.error = null
+            }
+        }
+
+        //Not empty (both)
+        if (pass.trim().isNullOrEmpty()) {
+            etPass.error = resources.getText(R.string.passwordEmptyError)
+            return false
+        }
+
+        //Length must be > 4 (both)
+        if (pass.length < 4) {
+            etPass.error = resources.getText(R.string.passwordLengthError)
+            return false
+        }
+
+        //Pass and confirm must match
+        if (confirmPass != pass) {
+            etConfirmPass.error = resources.getText(R.string.passwordMismatchError)
+            return false
+        }
+
+        return true
+    }
+
+    private fun isMailRegistered(mail: String): Boolean {
+        val userWithMail = users.firstOrNull { user ->
+            user.mail.equals(mail, ignoreCase = true)
+        }
+
+        return userWithMail != null
+    }
+
+    private fun getText(view: EditText): String = view.text.toString()
+
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
+    }
 
 }

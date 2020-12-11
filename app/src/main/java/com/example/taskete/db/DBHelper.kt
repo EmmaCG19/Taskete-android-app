@@ -20,9 +20,8 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
     private var compositeDisposable = CompositeDisposable()
 
     override fun onCreate(database: SQLiteDatabase?, connectionSource: ConnectionSource?) {
-        createUsersTable()
-        TableUtils.createTableIfNotExists(connectionSource, Task::class.java)
-
+        createUsersTable() //Add a dummy account
+        createTasksTable()
     }
 
     override fun onUpgrade(
@@ -46,6 +45,10 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
         } catch (e: SQLException) {
             Log.d(DB_INFO, "Error when upgrading database: ${e.message}")
         }
+    }
+
+    private fun createTasksTable() {
+        TableUtils.createTableIfNotExists(connectionSource, Task::class.java)
     }
 
     private fun createUsersTable() {

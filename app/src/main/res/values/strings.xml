@@ -64,5 +64,15 @@
     <string name="registerPassword">Password</string>
     <string name="registerConfirmPass">Confirm Password</string>
     <string name="registerButton">Create account</string>
+    <string name="registerFieldsErrors">One or more fields are invalid</string>
+    <string name="registerError">The account couldn\'t be created</string>
+    <string name="registerSuccess">The account was created successfully</string>
+    <string name="usernameEmptyError">Username cannot be empty</string>
+    <string name="mailEmptyError">Mail cannot be empty</string>
+    <string name="mailRegexError">Mail format is not valid</string>
+    <string name="mailExistentError">Mail is registered</string>
+    <string name="passwordEmptyError">Password cannot be empty</string>
+    <string name="passwordLengthError">Password must have 4 characters or more</string>
+    <string name="passwordMismatchError">Password and confirm password not matching</string>
 
 </resources>

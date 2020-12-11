@@ -22,4 +22,5 @@ object UIManager {
     fun hide(view: View) {
         view.visibility = View.GONE
     }
+
 }
