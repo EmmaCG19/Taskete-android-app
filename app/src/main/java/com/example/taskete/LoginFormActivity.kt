@@ -1,8 +1,6 @@
 package com.example.taskete
 
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -12,6 +10,7 @@ import android.widget.TextView
 import com.example.taskete.data.User
 import com.example.taskete.db.UsersDAO
 import com.example.taskete.helpers.UIManager
+import com.example.taskete.preferences.SessionPreferencesManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import io.reactivex.rxjava3.core.SingleObserver
@@ -32,6 +31,10 @@ class LoginFormActivity : AppCompatActivity() {
 
     private val usersDAO: UsersDAO by lazy {
         UsersDAO(this@LoginFormActivity.applicationContext)
+    }
+
+    private val sessionManager: SessionPreferencesManager by lazy{
+        SessionPreferencesManager(this@LoginFormActivity.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,6 +93,10 @@ class LoginFormActivity : AppCompatActivity() {
             }
         }, 1000)
 
+    }
+
+    private fun saveSession(user: User) {
+        sessionManager.saveLoggedUserId(user)
     }
 
     private fun validateLogin() {

@@ -19,9 +19,9 @@ import com.example.taskete.data.Task
 import com.example.taskete.db.TasksDAO
 import com.example.taskete.helpers.UIManager
 import com.example.taskete.preferences.PreferencesActivity
+import com.example.taskete.preferences.SessionPreferencesManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.SingleObserver
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -70,6 +70,7 @@ class MainActivity :
         tasks = emptyList()
         showAddFab = false
         showCompletedTasks = false
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
