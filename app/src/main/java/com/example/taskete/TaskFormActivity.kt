@@ -48,7 +48,7 @@ class TaskFormActivity : AppCompatActivity() {
     private lateinit var etTitle: TextInputEditText
     private lateinit var etDesc: TextInputEditText
     private lateinit var rgPriorities: RadioGroup
-    private lateinit var btnSave: ImageButton
+    private lateinit var btnSave: MaterialButton
     private lateinit var btnDatePicker: MaterialButton
     private lateinit var switchDateTime: SwitchDateTimeDialogFragment
     private lateinit var txtSelectedDate: TextView
