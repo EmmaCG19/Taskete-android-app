@@ -42,7 +42,7 @@
     <!--About me-->
     <string name="app_description">App creada por el alumno Emmanuel Fernandez como proyecto de la materia de Programación IV</string>
     <string name="app_repo_link">Link a Github</string>
-    <string name="app_version">v1.0</string>
+    <string name="app_version">v1.1</string>
 
     <!--Notification-->
     <string name="channelId">1</string>
@@ -50,12 +50,14 @@
     <string name="channelDesc">You will be notified about the tasks that must be completed</string>
 
     <!--Login form-->
-    <string name="loginTitle">Welcome</string>
+    <string name="loginTitle">@string/app_name</string>
     <string name="loginUsername">Username</string>
     <string name="loginMail">Email</string>
     <string name="loginPassword">Password</string>
     <string name="loginButton">Login</string>
     <string name="loginRegister">No account? Register here!</string>
+    <string name="loginError">Check credentials. Mail or password is invalid</string>
+    <string name="loginSuccess">Login successful</string>
 
     <!--Register form-->
     <string name="registerTitle">Registration</string>

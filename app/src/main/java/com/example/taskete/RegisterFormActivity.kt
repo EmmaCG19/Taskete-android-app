@@ -3,12 +3,9 @@ package com.example.taskete
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.widget.EditText
 import androidx.core.widget.doAfterTextChanged
-import androidx.core.widget.doOnTextChanged
 import com.example.taskete.data.Task
 import com.example.taskete.data.User
 import com.example.taskete.db.UsersDAO
@@ -29,7 +26,7 @@ class RegisterFormActivity : AppCompatActivity() {
     private lateinit var etConfirmPass: TextInputEditText
     private lateinit var btnRegister: MaterialButton
     private lateinit var newUser: User
-    private lateinit var users: List<User>
+    private lateinit var registeredUsers: List<User>
     private var compositeDisposable = CompositeDisposable()
 
     private val usersDAO: UsersDAO by lazy {
@@ -53,17 +50,17 @@ class RegisterFormActivity : AppCompatActivity() {
             createAccount()
         }
 
-        loadUsers()
+        loadRegisteredUsers()
     }
 
-    private fun loadUsers() {
+    private fun loadRegisteredUsers() {
         usersDAO.getUsers().subscribe(object : SingleObserver<List<User>> {
             override fun onSubscribe(d: Disposable?) {
                 compositeDisposable.add(d)
             }
 
             override fun onSuccess(t: List<User>) {
-                users = t
+                registeredUsers = t
             }
 
             override fun onError(e: Throwable?) {
@@ -74,7 +71,7 @@ class RegisterFormActivity : AppCompatActivity() {
     }
 
     private fun createAccount() {
-        if (validateCredentials()) {
+        if (inputIsValid()) {
             registerUser()
         } else
             showValidationErrorMessage()
@@ -136,7 +133,7 @@ class RegisterFormActivity : AppCompatActivity() {
         UIManager.showMessage(this, resources.getText(R.string.registerFieldsErrors) as String)
     }
 
-    private fun validateCredentials(): Boolean = usernameIsValid() and (mailIsValid()) and (passIsValid())
+    private fun inputIsValid(): Boolean = usernameIsValid() and (mailIsValid()) and (passIsValid())
 
     private fun usernameIsValid(): Boolean {
         val username = getText(etUsername)
@@ -219,7 +216,7 @@ class RegisterFormActivity : AppCompatActivity() {
     }
 
     private fun isMailRegistered(mail: String): Boolean {
-        val userWithMail = users.firstOrNull { user ->
+        val userWithMail = registeredUsers.firstOrNull { user ->
             user.mail.equals(mail, ignoreCase = true)
         }
 
