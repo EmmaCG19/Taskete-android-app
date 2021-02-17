@@ -39,7 +39,7 @@
                 app:layout_constraintBottom_toTopOf="@id/guidelineListEnd"
                 app:layout_constraintEnd_toEndOf="@id/guidelineRight"
                 app:layout_constraintStart_toStartOf="@id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@+id/toolbar"
+                app:layout_constraintTop_toBottomOf="@layout/toolbar"
                 tools:itemCount="5"
                 tools:listitem="@layout/item_card" />
 
