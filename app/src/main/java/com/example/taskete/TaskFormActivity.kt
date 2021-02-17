@@ -26,9 +26,11 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment
+import io.reactivex.rxjava3.core.SingleConverter
 import io.reactivex.rxjava3.core.SingleObserver
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.internal.jdk8.SingleFlattenStreamAsObservable
 import java.sql.SQLException
 import java.util.*
 
@@ -56,12 +58,12 @@ class TaskFormActivity : AppCompatActivity() {
     private lateinit var btnClearDate: ImageButton
     private lateinit var calendar: GregorianCalendar
     private lateinit var channelId: String
-    private val compositeDisposable = CompositeDisposable()
     private var selectedDate: Date?
     private var selectedTask: Task?
     private var tasks: List<Task>
     private var flagDateSeleccionada: Boolean
     private var defaultUser: User
+    private val compositeDisposable = CompositeDisposable()
 
     private val dao: TasksDAO by lazy {
         TasksDAO(this@TaskFormActivity.applicationContext)
@@ -79,8 +81,9 @@ class TaskFormActivity : AppCompatActivity() {
     init {
         selectedDate = null
         selectedTask = null
-        tasks = emptyList<Task>()
+        tasks = emptyList()
         flagDateSeleccionada = false
+
         defaultUser = User(1, "Test", "test@gmail.com", "1234", null, tasks)
     }
 
@@ -97,8 +100,8 @@ class TaskFormActivity : AppCompatActivity() {
         etDesc = findViewById(R.id.etDesc)
         rgPriorities = findViewById(R.id.rgPriorities)
         btnSave = findViewById(R.id.btnSave)
-
         btnDatePicker = findViewById(R.id.btnDatePicker)
+
         txtSelectedDate = findViewById(R.id.txtSelectedDate)
         cardDate = findViewById(R.id.cardDate)
         btnClearDate = findViewById(R.id.btnClearDate)
@@ -130,7 +133,7 @@ class TaskFormActivity : AppCompatActivity() {
     }
 
     private fun hideDateSelection() {
-        cardDate.visibility = View.GONE
+        UIManager.hide(cardDate)
         selectedDate = null
         flagDateSeleccionada = false
         cancelReminder()
@@ -144,7 +147,7 @@ class TaskFormActivity : AppCompatActivity() {
 
     private fun showDateTimePicker() {
         //Construct datetime picker fragment
-        var dateTimeFragment =
+        val dateTimeFragment =
                 (supportFragmentManager.findFragmentByTag(TAG_DATETIME_FRAGMENT)
                         ?: SwitchDateTimeDialogFragment.newInstance(
                                 resources.getText(R.string.due_time_title).toString(),
@@ -198,7 +201,6 @@ class TaskFormActivity : AppCompatActivity() {
 
     }
 
-
     private fun setReminder() {
         if (flagDateSeleccionada && selectedDate != null) {
             val intent = createReminder()
@@ -251,6 +253,7 @@ class TaskFormActivity : AppCompatActivity() {
         val rbSelected = getCheckedPriority(taskRetrieved?.priority)
         rgPriorities.check(rbSelected)
 
+        //TODO: Change showDateSelection(Date?) to Date
         if (taskRetrieved?.dueDate != null)
             showDateSelection(taskRetrieved?.dueDate)
     }
@@ -280,7 +283,6 @@ class TaskFormActivity : AppCompatActivity() {
             try {
                 val task = generateTask()
                 dao.addTask(task).subscribe()
-
                 getLastTask().also { task ->
                     selectedTask = task
 
@@ -356,12 +358,12 @@ class TaskFormActivity : AppCompatActivity() {
                 setPriority(rgPriorities.checkedRadioButtonId),
                 taskRetrieved?.isDone ?: false,
                 selectedDate,
-                defaultUser
+                defaultUser //TODO We need to give to the task the session's user credentials
         )
     }
 
     private fun inputIsValid(): Boolean {
-        return if (getText(etTitle).trim().isNullOrEmpty()) {
+        return if (getText(etTitle).trim().isEmpty()) {
             inputTitle.error = "You must complete this field"
             false
         } else {
@@ -400,3 +402,4 @@ class TaskFormActivity : AppCompatActivity() {
     }
 }
 
+//TODO Get current user to insert/update its tasks

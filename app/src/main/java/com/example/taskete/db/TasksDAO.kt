@@ -18,6 +18,7 @@ class TasksDAO(context: Context) {
         dao = helper.getDao(Task::class.java)
     }
 
+
     fun getTasks(): Single<List<Task>> {
         return Single.fromCallable { dao.queryForAll() }
                 .subscribeOn(Schedulers.io())
@@ -29,6 +30,7 @@ class TasksDAO(context: Context) {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
     }
+
 
     fun deleteTask(task: Task): Single<Int> {
         return Single.fromCallable { dao.delete(task) }

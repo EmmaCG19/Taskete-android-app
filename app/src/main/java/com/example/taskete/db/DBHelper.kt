@@ -151,5 +151,5 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
                 })
     }
 
-
+    //TODO: Revisar las suscripciones en los INSERT
 }

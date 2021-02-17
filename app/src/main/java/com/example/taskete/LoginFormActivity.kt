@@ -10,7 +10,7 @@ import android.widget.TextView
 import com.example.taskete.data.User
 import com.example.taskete.db.UsersDAO
 import com.example.taskete.helpers.UIManager
-import com.example.taskete.preferences.SessionPreferencesManager
+import com.example.taskete.preferences.SessionManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import io.reactivex.rxjava3.core.SingleObserver
@@ -18,23 +18,19 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 
 private const val TAG_ACTIVITY = "LoginFormActivity"
-const val LOGGED_USER = "LoggedUser"
+const val LOGGED_USER_ID = "LoggedUserId"
 
 class LoginFormActivity : AppCompatActivity() {
     private lateinit var etMail: TextInputEditText
     private lateinit var etPassword: TextInputEditText
     private lateinit var btnLogin: MaterialButton
     private lateinit var txtRegisterLink: TextView
-    private lateinit var validUser: User
     private lateinit var registeredUsers: List<User>
+    private lateinit var validUser: User
     private val compositeDisposable = CompositeDisposable()
 
     private val usersDAO: UsersDAO by lazy {
         UsersDAO(this@LoginFormActivity.applicationContext)
-    }
-
-    private val sessionManager: SessionPreferencesManager by lazy{
-        SessionPreferencesManager(this@LoginFormActivity.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +53,8 @@ class LoginFormActivity : AppCompatActivity() {
             goToRegisterForm()
         }
 
+        //Get preferences
+        SessionManager.getPreferences(this@LoginFormActivity.applicationContext)
     }
 
     private fun loginUser() {
@@ -72,7 +70,7 @@ class LoginFormActivity : AppCompatActivity() {
         val pass = getText(etPassword)
 
         val user = registeredUsers.firstOrNull { user ->
-                    user.mail.equals(mail, ignoreCase = true) &&
+            user.mail.equals(mail, ignoreCase = true) &&
                     user.password.equals(pass, ignoreCase = false)
         }
 
@@ -86,17 +84,26 @@ class LoginFormActivity : AppCompatActivity() {
 
     private fun launchUserSession(user: User) {
         showLoginSuccessMessage()
+        saveSession(user)
         Handler().postDelayed({
             Intent(this, MainActivity::class.java).apply {
-                putExtra(LOGGED_USER, user)
                 startActivity(this)
             }
         }, 1000)
-
     }
 
     private fun saveSession(user: User) {
-        sessionManager.saveLoggedUserId(user)
+        try {
+
+            //1- Get preferences internally whenever we save the userId
+            //2- Get preferences at the start of LoginActivity
+            SessionManager.saveLoggedUser(user.id)
+
+//            SessionManager.getPreferences(this@LoginFormActivity.applicationContext)
+        } catch (e: Exception) {
+            Log.d(TAG_ACTIVITY, "Cant create user session because ${e.message}")
+        }
+
     }
 
     private fun validateLogin() {
@@ -124,7 +131,7 @@ class LoginFormActivity : AppCompatActivity() {
         val validMailRegex = Regex("(?:[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])")
 
         //Not empty
-        if (mail.trim().isNullOrEmpty()) {
+        if (mail.trim().isEmpty()) {
             return false
         }
 
@@ -136,17 +143,16 @@ class LoginFormActivity : AppCompatActivity() {
         return true
     }
 
-
     private fun passIsValid(): Boolean {
         val pass = getText(etPassword)
 
-        //Not empty (both)
-        if (pass.trim().isNullOrEmpty()) {
+        if (pass.trim().isEmpty()) {
             return false
         }
 
         return true
     }
+
 
     private fun goToRegisterForm() {
         Intent(this, RegisterFormActivity::class.java).apply {
@@ -163,6 +169,16 @@ class LoginFormActivity : AppCompatActivity() {
     }
 
     private fun getText(view: EditText): String = view.text.toString()
+
+    private fun resetInput() {
+        etMail.text = null
+        etPassword.text = null
+    }
+
+    override fun onResume() {
+        resetInput()
+        super.onResume()
+    }
 
     override fun onDestroy() {
         compositeDisposable.clear()

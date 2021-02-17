@@ -10,7 +10,7 @@ import com.j256.ormlite.table.DatabaseTable
 
 @DatabaseTable(tableName = "Users")
 class User(
-        @DatabaseField(id = true)
+        @DatabaseField(generatedId = true)
         var id: Int? = null,
         @DatabaseField
         var username: String,
@@ -28,13 +28,14 @@ class User(
 
     constructor(parcel: Parcel) : this(
             parcel.readValue(Int::class.java.classLoader) as? Int,
-            parcel.readValue(String::class.java.classLoader) as String,
-            parcel.readValue(String::class.java.classLoader) as String,
-            parcel.readValue(String::class.java.classLoader) as String,
+            parcel.readString() as String,
+            parcel.readString() as String,
+            parcel.readString() as String,
             parcel.readString(),
             arrayListOf<Task>().apply {
                 parcel.readList(this, Task::class.java.classLoader)
-            })
+            }
+    )
 
     //TODO: CIRCULAR REFERENCE WITH WRITE PARCELABLE
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -67,5 +68,6 @@ class User(
 
 }
 
-//TODO: Check how to store images
-//TODO: Encrypt the password
+//TODO: Check how to store images (local storage or url path)
+//TODO: Encrypt the password with Base64
+//TODO: Use data classes

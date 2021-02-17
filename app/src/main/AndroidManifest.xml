@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.taskete">
 
+    <!--Internet connection permissions-->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -21,12 +22,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".RegisterFormActivity"/>
-        <activity android:name=".LoginFormActivity" />
-        <activity android:name=".TaskFormActivity" />
+        <activity android:name=".RegisterFormActivity" />
+        <activity android:name=".TaskFormActivity"/>
         <activity android:name=".AboutMeActivity" />
         <activity android:name=".preferences.PreferencesActivity" />
         <activity android:name=".MainActivity" />
+        <activity android:name=".LoginFormActivity"/>
 
         <receiver
             android:name=".notifications.TaskReminderReceiver"
@@ -37,6 +38,7 @@
             android:name=".notifications.NotificationService"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+
     </application>
 
 </manifest>

@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/settingsItem"
-        android:icon="@drawable/ic_settings"
-        android:title="Settings"
+        android:id="@+id/searchBarItem"
+        android:icon="@drawable/ic_search_task"
+        android:title="Search"
         app:showAsAction="always"/>
 </menu>

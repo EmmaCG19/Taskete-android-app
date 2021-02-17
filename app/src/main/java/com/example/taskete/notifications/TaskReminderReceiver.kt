@@ -31,9 +31,9 @@ class TaskReminderReceiver : BroadcastReceiver() {
 
         if (context != null && intent != null) {
             /****************************Debugging************************************/
-            val test = intent?.extras?.getString("Test")
-            val taskId = intent?.extras?.getInt("TAREA")
-            val task = intent?.extras?.getParcelable<Task?>(TASK_SELECTED)
+            val test = intent.extras?.getString("Test")
+            val taskId = intent.extras?.getInt("TAREA")
+            val task = intent.extras?.getParcelable<Task?>(TASK_SELECTED)
 
             Log.d(TAG_ACTIVITY, "Test received: $test")
             Log.d(TAG_ACTIVITY, "Task received: $taskId")

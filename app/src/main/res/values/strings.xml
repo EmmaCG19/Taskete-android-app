@@ -78,4 +78,17 @@
     <string name="passwordLengthError">Password must have 4 characters or more</string>
     <string name="passwordMismatchError">Password and confirm password not matching</string>
 
+
+    <!--NavDrawer-->
+    <string name="nav_header_welcome_message">Welcome</string>
+    <string name="nav_header_user_mail">test@gmail.com</string>
+    <string name="nav_header_username">User</string>
+    <string name="nav_open_desc">Nav drawer is open</string>
+    <string name="nav_close_desc">Nav drawer is close</string>
+    <string name="nav_menu_editProfile">Edit Profile</string>
+    <string name="nav_menu_settings">Settings</string>
+    <string name="nav_menu_logout">Logout</string>
+    <string name="nav_header_default_username">User error</string>
+    <string name="nav_header_default_usermail">Mail error</string>
+
 </resources>

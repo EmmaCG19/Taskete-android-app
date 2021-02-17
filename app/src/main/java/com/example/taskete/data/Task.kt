@@ -9,7 +9,7 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 @DatabaseTable(tableName = "Tasks")
 class Task(
-        @DatabaseField(id = true)
+        @DatabaseField(generatedId = true)
         var id: Int? = null,
         @DatabaseField
         var title: String,

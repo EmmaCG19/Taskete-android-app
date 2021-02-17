@@ -12,6 +12,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 
+/*The Session Manager helper must retrieve and save the (Id) of the current logged user in the SharedPreferences file*/
 
 class SessionManager {
     companion object {
@@ -20,20 +21,6 @@ class SessionManager {
         const val LOGGED_USER_ID = "LoggedUserId"
         private val compositeDisposable = CompositeDisposable()
         private lateinit var sharedPreferences: SharedPreferences
-
-        fun restoreLoggedUser(): Int {
-            Log.d(SessionManager::class.java.name, "We need to get the logged userId from the Shared Preferences")
-            return sharedPreferences?.getInt(LOGGED_USER_ID, DEFAULT_USER_ID)
-        }
-
-        fun saveLoggedUser(user: User?) {
-            Log.d(SessionManager::class.java.name, "We need to update the logged userId from the Shared Preferences")
-
-            sharedPreferences?.edit {
-                putInt(LOGGED_USER_ID, user?.id ?: DEFAULT_USER_ID)
-                commit()
-            }
-        }
 
         fun getPreferences(context: Context) {
             Single.fromCallable {
@@ -57,6 +44,19 @@ class SessionManager {
                             compositeDisposable.clear()
                         }
                     })
+        }
+
+        fun restoreLoggedUser(): Int {
+            return sharedPreferences.getInt(LOGGED_USER_ID, DEFAULT_USER_ID)
+        }
+
+        ///Pass null to reset credentials
+        fun saveLoggedUser(userId: Int?) {
+            sharedPreferences.edit {
+                putInt(LOGGED_USER_ID, userId ?: DEFAULT_USER_ID)
+                commit()
+            }
+
         }
     }
 }

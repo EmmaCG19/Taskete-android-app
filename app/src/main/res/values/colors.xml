@@ -36,4 +36,9 @@
 
     <!--Splashscreen-->
     <color name="splashscreen">#023A35</color>
+
+    <!--NavDrawer-->
+    <color name="nav_header">@color/primaryDarkColor</color>
+    <color name="nav_bg"></color>
+
 </resources>
