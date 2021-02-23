@@ -97,4 +97,9 @@
     <string name="nav_header_default_username">User error</string>
     <string name="nav_header_default_usermail">Mail error</string>
 
+
+    <plurals name="numberOfDeletedTasks">
+        <item quantity="one">%d task was deleted</item>
+        <item quantity="other">%d tasks were deleted</item>
+    </plurals>
 </resources>

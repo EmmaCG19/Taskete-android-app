@@ -415,7 +415,7 @@ class MainActivity :
         selectedTasks.forEach { t ->
             tasksDAO.deleteTask(t).subscribe()
         }
-        resetSelection()
+
     }
 
     override fun resetSelection() {
@@ -429,13 +429,20 @@ class MainActivity :
                 .setMessage(R.string.deleteDialogDesc)
                 .setPositiveButton(R.string.deleteDialogOK) { _, _ ->
                     deleteSelectedTasks()
-                    UIManager.showMessage(this, "${selectedTasks.size} tasks were deleted")
+                    UIManager.showMessage(this, buildDeleteMessage())
                 }
                 .setNegativeButton(R.string.deleteDialogNO) { _, _ ->
-                    resetSelection()
+                    //Nothing for now
                 }
                 .setCancelable(false)
                 .show()
+
+        resetSelection()
+    }
+
+    private fun buildDeleteMessage(): String {
+        val numberOfItems = selectedTasks.size
+        return resources.getQuantityString(R.plurals.numberOfDeletedTasks, numberOfItems, numberOfItems)
     }
 
     //SHOW/HIDE VIEWS methods
@@ -474,7 +481,7 @@ class MainActivity :
         handleFabAddVisibility()
     }
 
-    private fun loadTasksAndSettings() {
+    private fun loadTasks() {
         showTasksLoading()
         checkSettings()
         getUserTasks()
@@ -496,12 +503,12 @@ class MainActivity :
 
             Handler(mainLooper).postDelayed({
                 hideLoadingScreen()
-                loadTasksAndSettings()
+                loadTasks()
             }, 1000)
 
         } else {
             //2- GET USER TASKS AND SETTINGS ONLY
-            loadTasksAndSettings()
+            loadTasks()
         }
 
         super.onResume()
