@@ -19,6 +19,7 @@ class SessionManager {
         const val DEFAULT_USER_ID = -1
         const val SESSION_PREFERENCES = "SessionPreferences"
         const val LOGGED_USER_ID = "LoggedUserId"
+        private const val FIRST_LOGIN = "FirstLogin"
         private val compositeDisposable = CompositeDisposable()
         private lateinit var sharedPreferences: SharedPreferences
 
@@ -54,10 +55,16 @@ class SessionManager {
         fun saveLoggedUser(userId: Int?) {
             sharedPreferences.edit {
                 putInt(LOGGED_USER_ID, userId ?: DEFAULT_USER_ID)
+                putBoolean(FIRST_LOGIN, true)
                 commit()
             }
 
         }
+
+//        fun isFirstLogin() {
+//
+//            sharedPreferences.put(FIRST_LOGIN, )
+//        }
     }
 }
 

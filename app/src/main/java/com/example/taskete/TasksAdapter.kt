@@ -60,20 +60,22 @@ class TasksAdapter(
             setPriorityColor(this, tasks[position])
             strikeText(this, tasks[position])
 
-            //Fix to checkbox not holding view state
             chkIsDone.apply {
+                //Fix to checkbox not holding view state
                 setOnCheckedChangeListener(null)
                 setOnCheckedChangeListener { _, isChecked ->
                     tasks[position].isDone = isChecked
 
+                    //User tasks
                     TasksDAO(context).updateTask(tasks[position]).subscribe()
                     strikeText(holder, tasks[position])
 
-                    Handler().postDelayed({
-                        if(isChecked){
+                    //Wait until task is updated to perform action
+                    Handler(context.mainLooper).postDelayed({
+                        if (isChecked) {
                             listener.onItemCheck(this, position)
                         }
-                    },500)
+                    }, 500)
                 }
 
                 isChecked = tasks[position].isDone
@@ -95,7 +97,7 @@ class TasksAdapter(
         val context = dueDate.context
         val txtDate = dueDate.text.toString()
 
-        if (!txtDate.isNullOrEmpty()) {
+        if (txtDate.isNotEmpty()) {
             val taskDate = txtDate.dateFromString()
             val actualDate = Date(System.currentTimeMillis())
             val diff = actualDate.compareTo(taskDate)
@@ -138,7 +140,7 @@ class TasksAdapter(
     }
 
     private fun strikeText(holder: TaskViewHolder, task: Task) {
-        var text = holder.txtTitle
+        val text = holder.txtTitle
         val context = holder.txtTitle.context
 
         if (task.isDone) {

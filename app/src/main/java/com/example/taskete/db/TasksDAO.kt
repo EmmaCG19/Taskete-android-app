@@ -19,6 +19,19 @@ class TasksDAO(context: Context) {
     }
 
 
+    fun getUserTasks(userId: Int): Single<List<Task>> {
+        return Single.fromCallable {
+            dao.queryBuilder()
+                    .where()
+                    .eq(Task.USER_COL, userId)
+                    .query()
+        }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+    }
+
+
+    //General Task methods
     fun getTasks(): Single<List<Task>> {
         return Single.fromCallable { dao.queryForAll() }
                 .subscribeOn(Schedulers.io())
@@ -30,7 +43,6 @@ class TasksDAO(context: Context) {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
     }
-
 
     fun deleteTask(task: Task): Single<Int> {
         return Single.fromCallable { dao.delete(task) }
@@ -59,7 +71,13 @@ class TasksDAO(context: Context) {
     fun executeCustomQueries(queries: List<String>): Single<Unit> {
         return Single.fromCallable {
             for (query in queries) {
-                dao.executeRaw(query)
+                try {
+                    dao.executeRaw(query)
+                }
+                catch (e: Exception){
+                    Log.d("TasksDAO", "Error when processing queries: ${e.message}")
+                    break
+                }
             }
         }
                 .subscribeOn(Schedulers.io())

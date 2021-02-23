@@ -20,7 +20,7 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
     private var compositeDisposable = CompositeDisposable()
 
     override fun onCreate(database: SQLiteDatabase?, connectionSource: ConnectionSource?) {
-        createUsersTable() //Add a dummy account
+        createUsersTable()
         createTasksTable()
     }
 
@@ -62,32 +62,35 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
     private fun addUserColumnInTasksTable() {
         val queries = arrayListOf<String>()
 
+        //TODO: Use StringBuilder instead of (+) to concat
+
         //Create new table with FK column
         queries.add(
                 "CREATE TABLE `Tasks_new` " +
-                "(" +
-                    "id INTEGER PRIMARY KEY," +
-                    "title TEXT," +
-                    "description TEXT," +
-                    "priority INTEGER," +
-                    "isDone INTEGER," +
-                    "dueDate TEXT," +
-                    "userId INTEGER," +
-                    "FOREIGN KEY (userId) REFERENCES Users(id)" +
-                ");")
+                        "(" +
+                        "id INTEGER PRIMARY KEY," +
+                        "title TEXT," +
+                        "description TEXT," +
+                        "priority INTEGER," +
+                        "isDone INTEGER," +
+                        "dueDate TEXT," +
+                        "${Task.USER_COL} INTEGER," +
+                        "FOREIGN KEY (userId) REFERENCES Users(id)" +
+                        ");")
 
+        //TODO: Check (possible generated_Id issue when copy )
         //Copy values from oldTable to the new
         queries.add(
                 "INSERT INTO `Tasks_new`" +
                         "(id, title, description, priority, isDone, dueDate, userId) " +
                         "SELECT " +
-                            "id, " +
-                            "title, " +
-                            "description, " +
-                            "priority, " +
-                            "isDone, " +
-                            "dueDate, " +
-                            "1 " +
+                        "id, " +
+                        "title, " +
+                        "description, " +
+                        "priority, " +
+                        "isDone, " +
+                        "dueDate, " +
+                        "1 " +
                         "FROM `Tasks`;"
         )
 
@@ -96,6 +99,18 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
 
         //Rename new table
         queries.add("ALTER TABLE `Tasks_new` RENAME TO `Tasks`;")
+
+        //Add some tasks entries
+        queries.add(
+                "INSERT INTO `Tasks`" +
+                        "(title, description, priority, isDone, dueDate, ${Task.USER_COL})" +
+                        " VALUES" +
+                        " ('Task1', 'This is a task', 'HIGH', 0, NULL, 1)," +
+                        " ('Task2', 'This is a task', 'LOW', 0, NULL, 1)," +
+                        " ('Task3', 'This is a task', 'LOW', 1, NULL, 1)," +
+                        " ('Task4', 'This is a task', 'NOTASSIGNED', 1, NULL, 1)" +
+                        ";"
+        )
 
         insertTasksCustomQueries(queries)
     }
@@ -108,23 +123,6 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
                     }
 
                     override fun onSuccess(t: Unit?) {
-                        Log.d(DB_INFO, "The changes in Tasks table were successful")
-                    }
-
-                    override fun onError(e: Throwable) {
-                        Log.d(DB_INFO, "The changes in Tasks couldn't be done because ${e.message}")
-                    }
-                })
-    }
-
-    private fun insertTasksCustomQuery(query: String) {
-        TasksDAO(context)
-                .executeCustomQuery(query)
-                .subscribe(object : SingleObserver<Int> {
-                    override fun onSubscribe(d: Disposable?) {
-                    }
-
-                    override fun onSuccess(t: Int?) {
                         Log.d(DB_INFO, "The changes in Tasks table were successful")
                     }
 

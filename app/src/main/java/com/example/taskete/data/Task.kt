@@ -21,9 +21,14 @@ class Task(
         var isDone: Boolean,
         @DatabaseField
         var dueDate: Date?,
-        @DatabaseField(columnName = "userId", foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true, canBeNull = false)
+        @DatabaseField(columnName = USER_COL, foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true, canBeNull = false)
         var user: User?
 ) : Parcelable {
+
+    companion object {
+        const val USER_COL:String = "userId"
+    }
+
 
     //Default constructor that ORMLite needs
     constructor() : this(null, "", "", Priority.NOTASSIGNED, false, null, null)

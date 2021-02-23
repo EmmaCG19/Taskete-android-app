@@ -85,7 +85,7 @@ class LoginFormActivity : AppCompatActivity() {
     private fun launchUserSession(user: User) {
         showLoginSuccessMessage()
         saveSession(user)
-        Handler().postDelayed({
+        Handler(mainLooper).postDelayed({
             Intent(this, MainActivity::class.java).apply {
                 startActivity(this)
             }

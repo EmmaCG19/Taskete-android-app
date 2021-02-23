@@ -1,6 +1,7 @@
 package com.example.taskete.db
 
 import android.content.Context
+import com.example.taskete.data.Task
 import com.example.taskete.data.User
 import com.j256.ormlite.android.apptools.OpenHelperManager
 import com.j256.ormlite.dao.Dao
@@ -61,5 +62,6 @@ class UsersDAO(context: Context) {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
     }
+
 
 }

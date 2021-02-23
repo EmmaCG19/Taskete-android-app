@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="false"
-    tools:openDrawer="start">
+    tools:openDrawer="end">
 
     <!--Main content-->
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -14,21 +14,31 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include
-            layout="@layout/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:context=".MainActivity">
 
+            <include
+                android:id="@id/toolbar"
+                layout="@layout/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <androidx.constraintlayout.widget.Group
-                android:id="@+id/taskLayout"
+                android:id="@+id/tasksGroup"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:constraint_referenced_ids="rvTasks, fabAddTask, iconNoTasks" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/userGroup"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:constraint_referenced_ids="toolbar, tasksGroup" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvTasks"
@@ -39,7 +49,7 @@
                 app:layout_constraintBottom_toTopOf="@id/guidelineListEnd"
                 app:layout_constraintEnd_toEndOf="@id/guidelineRight"
                 app:layout_constraintStart_toStartOf="@id/guidelineLeft"
-                app:layout_constraintTop_toBottomOf="@layout/toolbar"
+                app:layout_constraintTop_toBottomOf="@id/loadingBar"
                 tools:itemCount="5"
                 tools:listitem="@layout/item_card" />
 
@@ -103,18 +113,19 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="MissingConstraints" />
+                app:trackCornerRadius="1dp" />
 
             <com.google.android.material.progressindicator.LinearProgressIndicator
                 android:id="@+id/loadingBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:indeterminate="true"
-                app:layout_constraintTop_toBottomOf="@layout/toolbar"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/toolbar"
+                app:trackColor="@color/secondaryDarkColor"
+                app:trackCornerRadius="1dp"
                 tools:ignore="MissingConstraints" />
-
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
