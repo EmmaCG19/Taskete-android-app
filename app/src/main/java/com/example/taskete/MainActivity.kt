@@ -38,6 +38,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 
 const val TASK_SELECTED = "Task_selected"
+//TODO: Passing user as an extra to TaskFormActivity
+const val LOGGED_USER = "LoggedUser"
 private const val TAG_ACTIVITY = "MainActivity"
 private const val PREFERENCE_ADDTASK = "swShowAddBtn"
 private const val PREFERENCE_SHOWCOMPLETE = "swPrefShowCompletedTasks"
@@ -324,6 +326,7 @@ class MainActivity :
     private fun launchTaskActivity(task: Task?) {
         Intent(this, TaskFormActivity::class.java).apply {
             putExtra(TASK_SELECTED, task)
+            putExtra(LOGGED_USER, currentUser)
             startActivity(this)
         }
     }

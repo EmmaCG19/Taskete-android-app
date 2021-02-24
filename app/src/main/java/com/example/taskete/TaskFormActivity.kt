@@ -6,8 +6,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
-import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.RadioGroup
@@ -22,11 +22,11 @@ import com.example.taskete.extensions.stringFromDate
 import com.example.taskete.helpers.KeyboardUtil
 import com.example.taskete.helpers.UIManager
 import com.example.taskete.notifications.TaskReminderReceiver
-import com.example.taskete.preferences.SessionManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.SingleObserver
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
@@ -40,6 +40,7 @@ private const val TAG_DATETIME_FRAGMENT = "DatetimeFragment"
 private const val REMINDER_TIME_IN_MINUTES = 1
 private const val DEFAULT_REQUEST_CODE = 1000
 const val REMINDER_INFO = "TaskInfo"
+
 
 class TaskFormActivity : AppCompatActivity() {
 
@@ -61,7 +62,6 @@ class TaskFormActivity : AppCompatActivity() {
     private var selectedTask: Task?
     private var tasks: List<Task>
     private var flagDateSeleccionada: Boolean
-    private var defaultUser: User
     private val compositeDisposable = CompositeDisposable()
 
     private val dao: TasksDAO by lazy {
@@ -69,8 +69,11 @@ class TaskFormActivity : AppCompatActivity() {
     }
 
     private val taskRetrieved: Task? by lazy {
-        val bundle: Bundle? = intent.extras
-        bundle?.getParcelable<Task>(TASK_SELECTED)
+        intent.extras?.getParcelable(TASK_SELECTED)
+    }
+
+    private val currentUser: User? by lazy {
+        intent.extras?.getParcelable(LOGGED_USER)
     }
 
     private val alarmManager by lazy {
@@ -78,12 +81,10 @@ class TaskFormActivity : AppCompatActivity() {
     }
 
     init {
-        selectedDate = null
-        selectedTask = null
         tasks = emptyList()
+        selectedTask = null
+        selectedDate = null
         flagDateSeleccionada = false
-
-        defaultUser = User(1, "Test", "test@gmail.com", "1234", null, tasks)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -122,7 +123,7 @@ class TaskFormActivity : AppCompatActivity() {
 
         btnClearDate.setOnClickListener {
             hideDateSelection()
-            cancelReminder()
+//            cancelReminder()
         }
 
         btnDatePicker.setOnClickListener {
@@ -135,13 +136,15 @@ class TaskFormActivity : AppCompatActivity() {
         UIManager.hide(cardDate)
         selectedDate = null
         flagDateSeleccionada = false
-        cancelReminder()
+//        cancelReminder()
     }
 
     private fun showDateSelection(date: Date?) {
-        selectedDate = date
-        cardDate.visibility = View.VISIBLE
-        txtSelectedDate.text = selectedDate?.stringFromDate()
+        date?.let {
+            selectedDate = it
+            UIManager.show(cardDate)
+            txtSelectedDate.text = selectedDate?.stringFromDate()
+        }
     }
 
     private fun showDateTimePicker() {
@@ -250,21 +253,41 @@ class TaskFormActivity : AppCompatActivity() {
         etDesc.setText(taskRetrieved?.description)
         val rbSelected = getCheckedPriority(taskRetrieved?.priority)
         rgPriorities.check(rbSelected)
-
-        //TODO: Change showDateSelection(Date?) to Date
-        if (taskRetrieved?.dueDate != null)
-            showDateSelection(taskRetrieved?.dueDate)
+        showDateSelection(taskRetrieved?.dueDate)
     }
+
+    private fun updateTask(task: Task) {
+        dao.updateTask(task).subscribe()
+    }
+
+    private fun addTask(task: Task) {
+        dao.addTask(task).subscribe(object : SingleObserver<Int> {
+            override fun onSubscribe(d: Disposable?) {
+                compositeDisposable.add(d)
+            }
+
+            override fun onSuccess(t: Int?) {
+                Log.d(TAG_ACTIVITY, "Task was created in DB")
+                getTasks()
+            }
+
+            override fun onError(e: Throwable?) {
+                Log.d(TAG_ACTIVITY, "Error when creating task in DB, because ${e?.message}")
+            }
+
+        })
+    }
+
 
     private fun editTask() {
         if (inputIsValid()) {
             try {
-                generateTask().also { task ->
-                    selectedTask = task
-                    dao.updateTask(task).subscribe()
+                generateTask().also {
+                    selectedTask = it
+                    updateTask(it)
                 }
 
-                setReminder()
+//                setReminder()
 
             } catch (e: SQLException) {
                 UIManager.showMessage(this, "There was an error when updating the task")
@@ -279,15 +302,19 @@ class TaskFormActivity : AppCompatActivity() {
     private fun createTask() {
         if (inputIsValid()) {
             try {
-                val task = generateTask()
-                dao.addTask(task).subscribe()
-                getLastTask().also { task ->
-                    selectedTask = task
-
-                    if (task != null) {
-                        setReminder()
-                    }
+                generateTask().also {
+                    addTask(it)
                 }
+
+                Handler(mainLooper).postDelayed({
+                    getLastTask().also {
+                        selectedTask = it
+
+                        if (it != null) {
+//                            setReminder()
+                        }
+                    }
+                }, 1000)
 
             } catch (e: SQLException) {
                 UIManager.showMessage(this, "There was an error when creating the task")
@@ -337,18 +364,17 @@ class TaskFormActivity : AppCompatActivity() {
                 })
     }
 
-    private fun getLastTask(): Task? {
-        getTasks()
 
+    private fun getLastTask(): Task? {
         return tasks.firstOrNull { t ->
             t.title == getText(etTitle) &&
                     t.description == getText(etDesc) &&
                     t.priority == setPriority(rgPriorities.checkedRadioButtonId) &&
-                    t.dueDate == selectedDate
+                    t.dueDate == selectedDate &&
+                    t.user == currentUser
         }
     }
 
-    //Get user credentials
     private fun generateTask(): Task {
         return Task(
                 taskRetrieved?.id,
@@ -356,8 +382,8 @@ class TaskFormActivity : AppCompatActivity() {
                 getText(etDesc),
                 setPriority(rgPriorities.checkedRadioButtonId),
                 taskRetrieved?.isDone ?: false,
-                taskRetrieved?.dueDate,
-                taskRetrieved?.user
+                selectedDate,
+                currentUser
         )
     }
 
@@ -401,4 +427,3 @@ class TaskFormActivity : AppCompatActivity() {
     }
 }
 
-//TODO Get current user to insert/update its tasks

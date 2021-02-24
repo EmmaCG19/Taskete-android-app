@@ -18,7 +18,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 
 private const val TAG_ACTIVITY = "LoginFormActivity"
-const val LOGGED_USER_ID = "LoggedUserId"
 
 class LoginFormActivity : AppCompatActivity() {
     private lateinit var etMail: TextInputEditText
