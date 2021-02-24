@@ -32,7 +32,7 @@
 
     <!--Logout Confirmation Dialog-->
     <string name="logoutDialogTitle">Logout</string>
-    <string name="logoutDialogDesc">Are you sure?</string>
+    <string name="logoutDialogDesc">Do you want to exit the session?</string>
     <string name="logoutDialogOK">YES</string>
     <string name="logoutDialogNO">NO</string>
 

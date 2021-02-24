@@ -66,7 +66,7 @@ class TasksAdapter(
                 setOnCheckedChangeListener { _, isChecked ->
                     tasks[position].isDone = isChecked
 
-                    //User tasks
+                    //Update selected task
                     TasksDAO(context).updateTask(tasks[position]).subscribe()
                     strikeText(holder, tasks[position])
 
