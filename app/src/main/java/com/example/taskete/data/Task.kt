@@ -28,7 +28,6 @@ class Task(
         var user: User?
 ) : Parcelable {
 
-
     //Default constructor that ORMLite needs
     constructor() : this(null, "", "", Priority.NOTASSIGNED, false, null, null)
 
@@ -55,7 +54,6 @@ class Task(
         parcel.writeValue(dueDate)
         user?.let { _parentsUser.put(this.id ?: -1, it) }
     }
-
 
     override fun describeContents(): Int {
         return 0
