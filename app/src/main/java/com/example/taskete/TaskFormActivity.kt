@@ -22,15 +22,14 @@ import com.example.taskete.extensions.stringFromDate
 import com.example.taskete.helpers.KeyboardUtil
 import com.example.taskete.helpers.UIManager
 import com.example.taskete.notifications.TaskReminderReceiver
+import com.example.taskete.preferences.SessionManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment
-import io.reactivex.rxjava3.core.SingleConverter
 import io.reactivex.rxjava3.core.SingleObserver
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.internal.jdk8.SingleFlattenStreamAsObservable
 import java.sql.SQLException
 import java.util.*
 
@@ -177,7 +176,6 @@ class TaskFormActivity : AppCompatActivity() {
                 date?.let {
                     calendar.timeInMillis = System.currentTimeMillis()
                     calendar.add(Calendar.MINUTE, -1) //Give the user one minute to choose
-                    val currentTime = calendar.timeInMillis
 
                     flagDateSeleccionada = if (it.time >= calendar.timeInMillis) {
                         showDateSelection(date)
@@ -350,6 +348,7 @@ class TaskFormActivity : AppCompatActivity() {
         }
     }
 
+    //Get user credentials
     private fun generateTask(): Task {
         return Task(
                 taskRetrieved?.id,
@@ -357,8 +356,8 @@ class TaskFormActivity : AppCompatActivity() {
                 getText(etDesc),
                 setPriority(rgPriorities.checkedRadioButtonId),
                 taskRetrieved?.isDone ?: false,
-                selectedDate,
-                defaultUser //TODO We need to give to the task the session's user credentials
+                taskRetrieved?.dueDate,
+                taskRetrieved?.user
         )
     }
 

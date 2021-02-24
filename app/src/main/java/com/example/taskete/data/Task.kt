@@ -1,12 +1,15 @@
 package com.example.taskete.data
 
+import android.os.Build
+import android.os.Parcel
 import java.util.*
 import android.os.Parcelable
+import androidx.annotation.RequiresApi
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.table.DatabaseTable
-import kotlinx.android.parcel.Parcelize
+import java.lang.AssertionError
+import kotlin.collections.HashMap
 
-@Parcelize
 @DatabaseTable(tableName = "Tasks")
 class Task(
         @DatabaseField(generatedId = true)
@@ -16,7 +19,7 @@ class Task(
         @DatabaseField
         var description: String,
         @DatabaseField
-        var priority: Priority,
+        var priority: Priority?,
         @DatabaseField
         var isDone: Boolean,
         @DatabaseField
@@ -25,13 +28,52 @@ class Task(
         var user: User?
 ) : Parcelable {
 
-    companion object {
-        const val USER_COL:String = "userId"
-    }
-
 
     //Default constructor that ORMLite needs
     constructor() : this(null, "", "", Priority.NOTASSIGNED, false, null, null)
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    constructor(parcel: Parcel) : this(
+            parcel.readValue(Int::class.java.classLoader) as? Int,
+            parcel.readString() as String,
+            parcel.readString() as String,
+            parcel.readValue(Priority::class.java.classLoader) as? Priority,
+            parcel.readBoolean(),
+            parcel.readValue(Date::class.java.classLoader) as? Date,
+            null
+    ) {
+        user = _parentsUser.remove(id)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeValue(id)
+        parcel.writeString(title)
+        parcel.writeString(description)
+        parcel.writeValue(priority)
+        parcel.writeBoolean(isDone)
+        parcel.writeValue(dueDate)
+        user?.let { _parentsUser.put(this.id ?: -1, it) }
+    }
+
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<Task> {
+        const val USER_COL: String = "userId"
+        private var _parentsUser = HashMap<Int, User>()
+
+        @RequiresApi(Build.VERSION_CODES.Q)
+        override fun createFromParcel(parcel: Parcel): Task {
+            return Task(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Task?> {
+            return arrayOfNulls(size)
+        }
+    }
 }
 
 enum class Priority {

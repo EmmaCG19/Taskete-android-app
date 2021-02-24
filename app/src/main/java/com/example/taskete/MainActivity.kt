@@ -18,6 +18,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.taskete.data.Priority
 import com.example.taskete.data.Task
 import com.example.taskete.data.User
 import com.example.taskete.db.TasksDAO
@@ -540,3 +541,7 @@ class MainActivity :
 
 //Helper log
 //Log.d(TAG_ACTIVITY, "Activity status: onCreate()")
+//Create a dummy task
+//tasks = arrayListOf(
+//Task(1, "Task-1", "This is a task", Priority.NOTASSIGNED, true, null, currentUser)
+//)

@@ -22,6 +22,19 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
     override fun onCreate(database: SQLiteDatabase?, connectionSource: ConnectionSource?) {
         createUsersTable()
         createTasksTable()
+
+        //TODO:DELETE THIS
+        val queries = arrayListOf(
+                "INSERT INTO `Tasks`" +
+                        "(title, description, priority, isDone, dueDate, ${Task.USER_COL})" +
+                        " VALUES" +
+                        " ('Task1', 'This is a task', 'HIGH', 0, NULL, 1)," +
+                        " ('Task2', 'This is a task', 'LOW', 0, NULL, 1)," +
+                        " ('Task3', 'This is a task', 'LOW', 1, NULL, 1)," +
+                        " ('Task4', 'This is a task', 'NOTASSIGNED', 1, NULL, 1)" +
+                        ";"
+        )
+        insertTasksCustomQueries(queries)
     }
 
     override fun onUpgrade(
@@ -82,7 +95,7 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
         //Copy values from oldTable to the new
         queries.add(
                 "INSERT INTO `Tasks_new`" +
-                        "(id, title, description, priority, isDone, dueDate, userId) " +
+                        "(id, title, description, priority, isDone, dueDate, ${Task.USER_COL}) " +
                         "SELECT " +
                         "id, " +
                         "title, " +
@@ -100,6 +113,7 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
         //Rename new table
         queries.add("ALTER TABLE `Tasks_new` RENAME TO `Tasks`;")
 
+        //TODO:DELETE THIS
         //Add some tasks entries
         queries.add(
                 "INSERT INTO `Tasks`" +
@@ -115,11 +129,13 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
         insertTasksCustomQueries(queries)
     }
 
+
     private fun insertTasksCustomQueries(queries: List<String>) {
         TasksDAO(context)
                 .executeCustomQueries(queries)
                 .subscribe(object : SingleObserver<Unit> {
                     override fun onSubscribe(d: Disposable?) {
+                        compositeDisposable.add(d)
                     }
 
                     override fun onSuccess(t: Unit?) {

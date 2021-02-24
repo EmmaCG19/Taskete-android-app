@@ -37,7 +37,7 @@ class User(
             }
     )
 
-    //TODO: CIRCULAR REFERENCE WITH WRITE PARCELABLE
+    //TODO: CIRCULAR REFERENCE WITH WRITE PARCELABLE (USER -> TASKS -> USER -> TASKS -> ...)
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeValue(id)
