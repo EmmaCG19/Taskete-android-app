@@ -237,6 +237,12 @@ class MainActivity :
         navDrawer.openDrawer(GravityCompat.START)
     }
 
+    private fun launchLoginActivity(){
+        Intent(this, LoginFormActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(this)
+        }
+    }
 
     private fun showLogoutDialog() {
         closeDrawer()
@@ -246,7 +252,7 @@ class MainActivity :
                 .setPositiveButton(R.string.logoutDialogOK) { _, _ ->
                     //Logout OK
                     SessionManager.saveLoggedUser(null)
-                    finish()
+                    launchLoginActivity()
                 }
                 .setNegativeButton(R.string.logoutDialogNO) { _, _ ->
                     //Go back to Menu
