@@ -5,9 +5,11 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.example.taskete.extensions.*
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.field.ForeignCollectionField
 import com.j256.ormlite.table.DatabaseTable
+
 
 @DatabaseTable(tableName = "Users")
 class User(
@@ -29,10 +31,10 @@ class User(
 
     @RequiresApi(Build.VERSION_CODES.Q)
     constructor(parcel: Parcel) : this(
-            parcel.readValue(Int::class.java.classLoader) as? Int,
-            parcel.readString() as String,
-            parcel.readString() as String,
-            parcel.readString() as String,
+            parcel.readValue(Int::class.java.classLoader) as Int?,
+            parcel.readString() as String, //USER
+            parcel.readString() as String, //USER
+            parcel.readString() as String, //USER
             parcel.readString(),
             arrayListOf<Task>().apply {
                 parcel.readParcelableList(this, Task::class.java.classLoader)

@@ -52,8 +52,8 @@ class LoginFormActivity : AppCompatActivity() {
             goToRegisterForm()
         }
 
-        //Get preferences
-        SessionManager.getPreferences(this@LoginFormActivity.applicationContext)
+//        //Get preferences
+//        SessionManager.getPreferences(this@LoginFormActivity.applicationContext)
     }
 
     private fun loginUser() {

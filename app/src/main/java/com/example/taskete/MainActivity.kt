@@ -38,7 +38,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 
 const val TASK_SELECTED = "Task_selected"
-//TODO: Passing user as an extra to TaskFormActivity
 const val LOGGED_USER = "LoggedUser"
 private const val TAG_ACTIVITY = "MainActivity"
 private const val PREFERENCE_ADDTASK = "swShowAddBtn"
@@ -495,7 +494,7 @@ class MainActivity :
     override fun onResume() {
         Log.d(TAG_ACTIVITY, "Activity status: onResume()")
 
-        //1- GET USER ALL
+        //1- GET USER
         if (!userRetrieved) {
             showScreenLoading()
             getLoggedUser()

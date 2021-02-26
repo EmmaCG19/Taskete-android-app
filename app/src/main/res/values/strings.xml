@@ -55,6 +55,7 @@
     <string name="channelId">1</string>
     <string name="channelName">Task Reminder</string>
     <string name="channelDesc">You will be notified about the tasks that must be completed</string>
+    <string name="reminderTitle">It's time</string>
 
     <!--Login form-->
     <string name="loginTitle">@string/app_name</string>

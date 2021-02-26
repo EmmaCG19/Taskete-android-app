@@ -60,11 +60,6 @@ class SessionManager {
             }
 
         }
-
-//        fun isFirstLogin() {
-//
-//            sharedPreferences.put(FIRST_LOGIN, )
-//        }
     }
 }
 

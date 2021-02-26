@@ -5,10 +5,12 @@ import android.os.Parcel
 import java.util.*
 import android.os.Parcelable
 import androidx.annotation.RequiresApi
+import com.example.taskete.extensions.*
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.table.DatabaseTable
-import java.lang.AssertionError
 import kotlin.collections.HashMap
+
+private const val NOT_ASSIGNED = "NOTASSIGNED"
 
 @DatabaseTable(tableName = "Tasks")
 class Task(
@@ -19,7 +21,7 @@ class Task(
         @DatabaseField
         var description: String,
         @DatabaseField
-        var priority: Priority?,
+        var priority: Priority,
         @DatabaseField
         var isDone: Boolean,
         @DatabaseField
@@ -33,10 +35,10 @@ class Task(
 
     @RequiresApi(Build.VERSION_CODES.Q)
     constructor(parcel: Parcel) : this(
-            parcel.readValue(Int::class.java.classLoader) as? Int,
+            parcel.readValue(Int::class.java.classLoader) as Int?,
+            parcel.readString() as String, //TASK
             parcel.readString() as String,
-            parcel.readString() as String,
-            parcel.readValue(Priority::class.java.classLoader) as? Priority,
+            parcel.readValue(Priority::class.java.classLoader) as Priority,
             parcel.readBoolean(),
             parcel.readValue(Date::class.java.classLoader) as? Date,
             null
