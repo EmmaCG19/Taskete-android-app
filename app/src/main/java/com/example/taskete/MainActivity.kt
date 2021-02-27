@@ -345,12 +345,12 @@ class MainActivity :
         navDrawer.openDrawer(GravityCompat.START)
     }
 
-    private fun launchLoginActivity() {
-        Intent(this, LoginFormActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(this)
-        }
-    }
+//    private fun launchLoginActivity() {
+//        Intent(this, LoginFormActivity::class.java).apply {
+//            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
+//            startActivity(this)
+//        }
+//    }
 
     private fun showLogoutDialog() {
         closeDrawer()
@@ -361,7 +361,7 @@ class MainActivity :
                 //Logout OK
                 SessionManager.setTrialModeFlag(false)
                 SessionManager.saveLoggedUser(null)
-                launchLoginActivity()
+                finish()
             }
             .setNegativeButton(R.string.logoutDialogNO) { _, _ ->
                 //Go back to Menu

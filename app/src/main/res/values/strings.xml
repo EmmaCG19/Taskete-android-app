@@ -13,6 +13,13 @@
     <string name="error_database_update">The task couldnt be updated</string>
     <string name="error_database_add">The task couldnt be created</string>
     <string name="save_task">Save</string>
+    <string name="save_loading_message">Saving task...</string>
+    <string name="feature_disabled">Save feature</string>
+    <string name="datetime_lower_error">The selected due time can't be lower than the current time</string>
+    <string name="update_task_error">There was an error when updating the task</string>
+    <string name="create_task_error">There was an error when creating the task</string>
+    <string name="form_input_error">One or more errors have ocurred</string>
+    <string name="form_title_required">"You must complete this field"</string>
 
     <!--Task alert-->
     <string name="alertTimeLeft">On track</string>

@@ -41,17 +41,11 @@ import java.util.*
 
 //DEBUGGING
 private const val TAG_ACTIVITY = "TaskFormActivity"
-
 private const val TAG_DATETIME_FRAGMENT = "DatetimeFragment"
 private const val DEFAULT_REQUEST_CODE = 1000
 private const val REMINDER_TIME_IN_MINUTES = 1
-const val REMINDER_INFO = "TaskInfo"
-const val CUSTOM_ACTION = "SET_REMINDER"
-
 
 class TaskFormActivity : AppCompatActivity() {
-
-    //TODO Use ViewBinding to reduce instantiations
     private lateinit var inputTitle: TextInputLayout
     private lateinit var inputDesc: TextInputLayout
     private lateinit var etTitle: TextInputEditText
@@ -120,10 +114,10 @@ class TaskFormActivity : AppCompatActivity() {
     private fun setListeners() {
 
         btnSave.setOnClickListener {
-            if(SessionManager.isTrialMode()){
+            KeyboardUtil.hideKeyboard(this)
+            if (SessionManager.isTrialMode()) {
                 showSaveBtnDisabled()
-            }
-            else{
+            } else {
                 if (taskRetrieved != null) {
                     editTask()
                 } else {
@@ -146,7 +140,7 @@ class TaskFormActivity : AppCompatActivity() {
 
     private fun showSaveBtnDisabled() {
         btnSave.setBackgroundColor(resources.getColor(R.color.colorTextDisabled, null))
-        UIManager.showDisabledFeature(this, "Save feature")
+        UIManager.showDisabledFeature(this, getText(R.string.feature_disabled).toString())
     }
 
     private fun hideDateSelection() {
@@ -154,7 +148,6 @@ class TaskFormActivity : AppCompatActivity() {
         selectedDate = null
         flagDateSeleccionada = false
     }
-
 
 
     private fun showDateSelection(date: Date?) {
@@ -166,14 +159,13 @@ class TaskFormActivity : AppCompatActivity() {
     }
 
     private fun showDateTimePicker() {
-        //Construct datetime picker fragment
         val dateTimeFragment =
-                (supportFragmentManager.findFragmentByTag(TAG_DATETIME_FRAGMENT)
-                        ?: SwitchDateTimeDialogFragment.newInstance(
-                                resources.getText(R.string.due_time_title).toString(),
-                                resources.getText(R.string.due_time_ok).toString(),
-                                resources.getText(R.string.due_time_cancel).toString()
-                        )) as SwitchDateTimeDialogFragment
+            (supportFragmentManager.findFragmentByTag(TAG_DATETIME_FRAGMENT)
+                ?: SwitchDateTimeDialogFragment.newInstance(
+                    resources.getText(R.string.due_time_title).toString(),
+                    resources.getText(R.string.due_time_ok).toString(),
+                    resources.getText(R.string.due_time_cancel).toString()
+                )) as SwitchDateTimeDialogFragment
 
 
         dateTimeFragment.setTimeZone(TimeZone.getDefault())
@@ -187,10 +179,9 @@ class TaskFormActivity : AppCompatActivity() {
         dateTimeFragment.maximumDateTime = calendar.time
 
         dateTimeFragment.setOnButtonClickListener(object :
-                SwitchDateTimeDialogFragment.OnButtonClickListener {
+            SwitchDateTimeDialogFragment.OnButtonClickListener {
 
             override fun onPositiveButtonClick(date: Date?) {
-                //Debo verificar que el usuario no elija una fecha y hora menor a la actual
                 date?.let {
                     calendar.timeInMillis = System.currentTimeMillis()
                     calendar.add(Calendar.MINUTE, -1) //Give the user one minute to choose
@@ -200,8 +191,8 @@ class TaskFormActivity : AppCompatActivity() {
                         true
                     } else {
                         UIManager.showMessage(
-                                this@TaskFormActivity,
-                                "The selected due time can't be lower than the current time"
+                            this@TaskFormActivity,
+                            getText(R.string.datetime_lower_error).toString()
                         )
                         false
                     }
@@ -224,8 +215,8 @@ class TaskFormActivity : AppCompatActivity() {
         }
 
         return PendingIntent.getBroadcast(
-                this, selectedTask?.id
-                ?: DEFAULT_REQUEST_CODE, notifIntent, PendingIntent.FLAG_CANCEL_CURRENT
+            this, selectedTask?.id
+                ?: DEFAULT_REQUEST_CODE, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
 
@@ -233,6 +224,7 @@ class TaskFormActivity : AppCompatActivity() {
         if (flagDateSeleccionada && selectedDate != null) {
             val intent = createReminder()
 
+            //Debug purpose: Show a reminder 1 minute before the task limit
             selectedDate?.let {
                 calendar.timeInMillis = it.time
                 calendar.add(Calendar.MINUTE, -REMINDER_TIME_IN_MINUTES)
@@ -246,8 +238,8 @@ class TaskFormActivity : AppCompatActivity() {
 
     private fun cancelReminder() {
         val intent = createReminder()
-        alarmManager.cancel(intent)
         intent.cancel()
+        alarmManager.cancel(intent)
 
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
@@ -288,19 +280,24 @@ class TaskFormActivity : AppCompatActivity() {
     }
 
 
+    private fun showSaveLoadingMessage() {
+        UIManager.showMessageLong(this, getText(R.string.save_loading_message).toString())
+    }
+
     private fun editTask() {
         if (inputIsValid()) {
             try {
+                //Update task
                 generateTask().also {
                     selectedTask = it
-                    //Actualizo la tarea
+                    showSaveLoadingMessage()
                     updateTask(it)
                 }
 
                 setReminder()
 
             } catch (e: SQLException) {
-                UIManager.showMessage(this, "There was an error when updating the task")
+                UIManager.showMessage(this, getText(R.string.update_task_error).toString())
             } finally {
                 finishActivity()
             }
@@ -312,13 +309,14 @@ class TaskFormActivity : AppCompatActivity() {
     private fun createTask() {
         if (inputIsValid()) {
             try {
-                //Genero tarea
+                //Create task
                 generateTask().also {
+                    showSaveLoadingMessage()
                     addTask(it)
                 }
 
             } catch (e: SQLException) {
-                UIManager.showMessage(this, "There was an error when creating the task")
+                UIManager.showMessage(this, getText(R.string.create_task_error).toString())
             } finally {
                 finishActivity()
             }
@@ -330,29 +328,29 @@ class TaskFormActivity : AppCompatActivity() {
     private fun finishActivity() {
         Handler(mainLooper).postDelayed({
             finish()
-        }, 5000)
+        }, 3500)
     }
 
     private fun getTasks() {
         dao.getTasks()
-                .subscribe(object : SingleObserver<List<Task>> {
-                    override fun onSubscribe(d: Disposable?) {
-                        Log.d(TAG_ACTIVITY, "An Observer subscribed to an observable")
-                        compositeDisposable.add(d)
-                    }
+            .subscribe(object : SingleObserver<List<Task>> {
+                override fun onSubscribe(d: Disposable?) {
+                    Log.d(TAG_ACTIVITY, "An Observer subscribed to an observable")
+                    compositeDisposable.add(d)
+                }
 
-                    override fun onSuccess(listOfTasks: List<Task>) {
-                        Log.d(TAG_ACTIVITY, "The tasks were retrieved successfully")
-                        tasks = listOfTasks
-                        selectedTask = getLastTask()
-                        setReminder()
-                    }
+                override fun onSuccess(listOfTasks: List<Task>) {
+                    Log.d(TAG_ACTIVITY, "The tasks were retrieved successfully")
+                    tasks = listOfTasks
+                    selectedTask = getLastTask()
+                    setReminder()
+                }
 
-                    override fun onError(e: Throwable) {
-                        Log.d(TAG_ACTIVITY, "Error when getting tasks ", e)
-                    }
+                override fun onError(e: Throwable) {
+                    Log.d(TAG_ACTIVITY, "Error when getting tasks ", e)
+                }
 
-                })
+            })
     }
 
 
@@ -368,19 +366,19 @@ class TaskFormActivity : AppCompatActivity() {
 
     private fun generateTask(): Task {
         return Task(
-                taskRetrieved?.id,
-                getText(etTitle),
-                getText(etDesc),
-                setPriority(rgPriorities.checkedRadioButtonId),
-                taskRetrieved?.isDone ?: false,
-                selectedDate,
-                currentUser
+            taskRetrieved?.id,
+            getText(etTitle),
+            getText(etDesc),
+            setPriority(rgPriorities.checkedRadioButtonId),
+            taskRetrieved?.isDone ?: false,
+            selectedDate,
+            currentUser
         )
     }
 
     private fun inputIsValid(): Boolean {
         return if (getText(etTitle).trim().isEmpty()) {
-            inputTitle.error = "You must complete this field"
+            inputTitle.error = getText(R.string.form_title_required)
             false
         } else {
             true
@@ -409,7 +407,7 @@ class TaskFormActivity : AppCompatActivity() {
     private fun getText(editText: EditText) = editText.text.toString()
 
     private fun showErrorAlert() {
-        UIManager.showMessage(this, "One or more errors have ocurred")
+        UIManager.showMessage(this, getText(R.string.form_input_error).toString())
     }
 
     override fun onStop() {

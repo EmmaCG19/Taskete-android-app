@@ -108,16 +108,10 @@ class LoginFormActivity : AppCompatActivity() {
 
     private fun saveSession(user: User) {
         try {
-
-            //1- Get preferences internally whenever we save the userId
-            //2- Get preferences at the start of LoginActivity
             SessionManager.saveLoggedUser(user.id)
-
-//            SessionManager.getPreferences(this@LoginFormActivity.applicationContext)
         } catch (e: Exception) {
             Log.d(TAG_ACTIVITY, "Cant create user session because ${e.message}")
         }
-
     }
 
     private fun validateLogin() {
@@ -193,6 +187,7 @@ class LoginFormActivity : AppCompatActivity() {
         resetInput()
         super.onResume()
     }
+
 
     override fun onDestroy() {
         compositeDisposable.clear()

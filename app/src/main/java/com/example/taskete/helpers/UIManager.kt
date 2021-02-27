@@ -15,6 +15,13 @@ object UIManager {
         }
     }
 
+    fun showMessageLong(context: Context, message: String) {
+        KeyboardUtil.hideKeyboard(context as Activity)
+        Toast.makeText(context, message, Toast.LENGTH_LONG).apply {
+            show()
+        }
+    }
+
     fun showDisabledFeature(context: Context, component: String) {
         showMessage(
             context,

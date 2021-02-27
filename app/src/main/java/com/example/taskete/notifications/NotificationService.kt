@@ -142,7 +142,7 @@ class NotificationService : JobIntentService() {
             putExtra(LOGGED_USER, user)
         }
 
-        return PendingIntent.getActivity(this, 0, notifIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+        return PendingIntent.getActivity(this, 0, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
     private fun createNotification(task: Task?): Notification {
