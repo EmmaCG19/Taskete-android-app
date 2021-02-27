@@ -22,26 +22,13 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
     override fun onCreate(database: SQLiteDatabase?, connectionSource: ConnectionSource?) {
         createUsersTable()
         createTasksTable()
-
-        //TODO:DELETE THIS
-        val queries = arrayListOf(
-                "INSERT INTO `Tasks`" +
-                        "(title, description, priority, isDone, dueDate, ${Task.USER_COL})" +
-                        " VALUES" +
-                        " ('Task1', 'This is a task', 'HIGH', 0, NULL, 1)," +
-                        " ('Task2', 'This is a task', 'LOW', 0, NULL, 1)," +
-                        " ('Task3', 'This is a task', 'LOW', 1, NULL, 1)," +
-                        " ('Task4', 'This is a task', 'NOTASSIGNED', 1, NULL, 1)" +
-                        ";"
-        )
-        insertTasksCustomQueries(queries)
     }
 
     override fun onUpgrade(
-            database: SQLiteDatabase?,
-            connectionSource: ConnectionSource?,
-            oldVersion: Int,
-            newVersion: Int
+        database: SQLiteDatabase?,
+        connectionSource: ConnectionSource?,
+        oldVersion: Int,
+        newVersion: Int
     ) {
 
         if (oldVersion < 2) {
@@ -66,45 +53,39 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
 
     private fun createUsersTable() {
         TableUtils.createTableIfNotExists(connectionSource, User::class.java)
-        insertUsersCustomQuery(
-                "INSERT INTO Users(username, mail, password, avatar) " +
-                        "VALUES('Test', 'test@gmail.com', '1234', NULL);"
-        )
     }
 
     private fun addUserColumnInTasksTable() {
         val queries = arrayListOf<String>()
 
-        //TODO: Use StringBuilder instead of (+) to concat
-
         //Create new table with FK column
         queries.add(
-                "CREATE TABLE `Tasks_new` " +
-                        "(" +
-                        "id INTEGER PRIMARY KEY," +
-                        "title TEXT," +
-                        "description TEXT," +
-                        "priority INTEGER," +
-                        "isDone INTEGER," +
-                        "dueDate TEXT," +
-                        "${Task.USER_COL} INTEGER," +
-                        "FOREIGN KEY (userId) REFERENCES Users(id)" +
-                        ");")
+            "CREATE TABLE `Tasks_new` " +
+                    "(" +
+                    "id INTEGER PRIMARY KEY," +
+                    "title TEXT," +
+                    "description TEXT," +
+                    "priority INTEGER," +
+                    "isDone INTEGER," +
+                    "dueDate TEXT," +
+                    "${Task.USER_COL} INTEGER," +
+                    "FOREIGN KEY (userId) REFERENCES Users(id)" +
+                    ");"
+        )
 
-        //TODO: Check (possible generated_Id issue when copy )
         //Copy values from oldTable to the new
         queries.add(
-                "INSERT INTO `Tasks_new`" +
-                        "(id, title, description, priority, isDone, dueDate, ${Task.USER_COL}) " +
-                        "SELECT " +
-                        "id, " +
-                        "title, " +
-                        "description, " +
-                        "priority, " +
-                        "isDone, " +
-                        "dueDate, " +
-                        "1 " +
-                        "FROM `Tasks`;"
+            "INSERT INTO `Tasks_new`" +
+                    "(id, title, description, priority, isDone, dueDate, ${Task.USER_COL}) " +
+                    "SELECT " +
+                    "id, " +
+                    "title, " +
+                    "description, " +
+                    "priority, " +
+                    "isDone, " +
+                    "dueDate, " +
+                    "1 " +
+                    "FROM `Tasks`;"
         )
 
         //Drop old table
@@ -113,57 +94,26 @@ class DBHelper(val context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME,
         //Rename new table
         queries.add("ALTER TABLE `Tasks_new` RENAME TO `Tasks`;")
 
-        //TODO:DELETE THIS
-        //Add some tasks entries
-        queries.add(
-                "INSERT INTO `Tasks`" +
-                        "(title, description, priority, isDone, dueDate, ${Task.USER_COL})" +
-                        " VALUES" +
-                        " ('Task1', 'This is a task', 'HIGH', 0, NULL, 1)," +
-                        " ('Task2', 'This is a task', 'LOW', 0, NULL, 1)," +
-                        " ('Task3', 'This is a task', 'LOW', 1, NULL, 1)," +
-                        " ('Task4', 'This is a task', 'NOTASSIGNED', 1, NULL, 1)" +
-                        ";"
-        )
-
         insertTasksCustomQueries(queries)
     }
 
 
     private fun insertTasksCustomQueries(queries: List<String>) {
         TasksDAO(context)
-                .executeCustomQueries(queries)
-                .subscribe(object : SingleObserver<Unit> {
-                    override fun onSubscribe(d: Disposable?) {
-                        compositeDisposable.add(d)
-                    }
+            .executeCustomQueries(queries)
+            .subscribe(object : SingleObserver<Unit> {
+                override fun onSubscribe(d: Disposable?) {
+                    compositeDisposable.add(d)
+                }
 
-                    override fun onSuccess(t: Unit?) {
-                        Log.d(DB_INFO, "The changes in Tasks table were successful")
-                    }
+                override fun onSuccess(t: Unit?) {
+                    Log.d(DB_INFO, "The changes in Tasks table were successful")
+                }
 
-                    override fun onError(e: Throwable) {
-                        Log.d(DB_INFO, "The changes in Tasks couldn't be done because ${e.message}")
-                    }
-                })
+                override fun onError(e: Throwable) {
+                    Log.d(DB_INFO, "The changes in Tasks couldn't be done because ${e.message}")
+                }
+            })
     }
 
-    private fun insertUsersCustomQuery(query: String) {
-        UsersDAO(context)
-                .executeCustomQuery(query)
-                .subscribe(object : SingleObserver<Int> {
-                    override fun onSubscribe(d: Disposable?) {
-                    }
-
-                    override fun onSuccess(t: Int?) {
-                        Log.d(DB_INFO, "The changes in Users table were successful")
-                    }
-
-                    override fun onError(e: Throwable) {
-                        Log.d(DB_INFO, "The changes in Users couldn't be done because ${e.message}")
-                    }
-                })
-    }
-
-    //TODO: Revisar las suscripciones en los INSERT
 }

@@ -93,6 +93,13 @@ class TasksAdapter(
         }
     }
 
+    override fun getItemCount(): Int = tasks.size
+
+
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
+
     private fun setDateAlert(dueDate: TextView) {
         val context = dueDate.context
         val txtDate = dueDate.text.toString()
@@ -102,7 +109,6 @@ class TasksAdapter(
             val actualDate = Date(System.currentTimeMillis())
             val diff = actualDate.compareTo(taskDate)
 
-            //Se cambia el calor de acuerdo a la proximidad
             if (diff > 0) {
                 dueDate.setTextColor(ContextCompat.getColor(context, R.color.colorPriorityHigh))
                 dueDate.setText(R.string.alertNoTimeLeft)
@@ -112,13 +118,6 @@ class TasksAdapter(
             }
         }
 
-    }
-
-
-    override fun getItemCount(): Int = tasks.size
-
-    override fun getItemViewType(position: Int): Int {
-        return position
     }
 
     private fun resetViewHolder(holder: TaskViewHolder) {

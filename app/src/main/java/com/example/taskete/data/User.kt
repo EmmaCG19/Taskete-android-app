@@ -24,8 +24,8 @@ class User(
     @DatabaseField
     var password: String,
     @DatabaseField
-    var avatar: String? = null, //Store filepath or image
-    @ForeignCollectionField(eager = false) //eager=false need to refresh before modifying the tasks field
+    var avatar: String? = null,
+    @ForeignCollectionField(eager = false)
     var tasks: Collection<Task>
 ) : Parcelable {
 
@@ -34,16 +34,15 @@ class User(
     @RequiresApi(Build.VERSION_CODES.Q)
     constructor(parcel: Parcel) : this(
         parcel.readValue(Int::class.java.classLoader) as Int?,
-        parcel.readString() as String, //USER
-        parcel.readString() as String, //USER
-        parcel.readString() as String, //USER
+        parcel.readString() as String,
+        parcel.readString() as String,
+        parcel.readString() as String,
         parcel.readString(),
         arrayListOf<Task>().apply {
             parcel.readParcelableList(this, Task::class.java.classLoader)
         }
     )
 
-    //TODO: CIRCULAR REFERENCE WITH WRITE PARCELABLE (USER -> TASKS -> USER -> TASKS -> ...)
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeValue(id)
@@ -52,7 +51,7 @@ class User(
         parcel.writeString(password)
         parcel.writeString(avatar)
 
-        arrayListOf<Task>().also { it ->
+        arrayListOf<Task>().also {
             for (task in tasks) {
                 it.add(task)
             }
@@ -82,7 +81,7 @@ class UserResponse(
     var username: String,
     var mail: String,
     var password: String,
-    var avatar: String? = null, //Store filepath or image
+    var avatar: String? = null,
     var tasks: List<TaskResponse>
 )
 

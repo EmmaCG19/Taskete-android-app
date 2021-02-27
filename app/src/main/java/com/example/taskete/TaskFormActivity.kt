@@ -297,7 +297,7 @@ class TaskFormActivity : AppCompatActivity() {
                 setReminder()
 
             } catch (e: SQLException) {
-                UIManager.showMessage(this, getText(R.string.update_task_error).toString())
+                UIManager.showMessage(this, getText(R.string.error_database_update).toString())
             } finally {
                 finishActivity()
             }
@@ -316,7 +316,7 @@ class TaskFormActivity : AppCompatActivity() {
                 }
 
             } catch (e: SQLException) {
-                UIManager.showMessage(this, getText(R.string.create_task_error).toString())
+                UIManager.showMessage(this, getText(R.string.error_database_add).toString())
             } finally {
                 finishActivity()
             }

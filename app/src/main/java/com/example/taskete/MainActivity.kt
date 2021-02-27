@@ -112,7 +112,6 @@ class MainActivity :
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(TAG_ACTIVITY, "Activity status: onCreate()")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setupUI()
@@ -182,6 +181,14 @@ class MainActivity :
         closeDrawer()
     }
 
+    private fun setupToolbar() {
+        toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.title = resources.getText(R.string.main_screen_title)
+        supportActionBar?.setHomeAsUpIndicator(null)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
     private fun updateUser(user: User) {
         usersDAO.updateUser(user).subscribe(object : SingleObserver<Int> {
             override fun onSubscribe(d: Disposable?) {
@@ -193,18 +200,10 @@ class MainActivity :
             }
 
             override fun onError(e: Throwable?) {
-                Log.d(TAG_ACTIVITY, "Could username from current user because ${e?.message}")
+                Log.d(TAG_ACTIVITY, "Error updating user because ${e?.message}")
             }
 
         })
-    }
-
-    private fun setupToolbar() {
-        toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.title = resources.getText(R.string.main_screen_title)
-        supportActionBar?.setHomeAsUpIndicator(null)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
     private fun getLoggedUser() {
@@ -216,10 +215,6 @@ class MainActivity :
                     }
 
                     override fun onSuccess(t: User?) {
-                        Log.d(
-                            TAG_ACTIVITY,
-                            "Showing current user info: ${t?.mail} | ${t?.username}"
-                        )
                         currentUser = t
                         userRetrieved = true
                         loadUserProfile()
@@ -345,20 +340,12 @@ class MainActivity :
         navDrawer.openDrawer(GravityCompat.START)
     }
 
-//    private fun launchLoginActivity() {
-//        Intent(this, LoginFormActivity::class.java).apply {
-//            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
-//            startActivity(this)
-//        }
-//    }
-
     private fun showLogoutDialog() {
         closeDrawer()
         AlertDialog.Builder(this)
             .setTitle(R.string.logoutDialogTitle)
             .setMessage(R.string.logoutDialogDesc)
             .setPositiveButton(R.string.logoutDialogOK) { _, _ ->
-                //Logout OK
                 SessionManager.setTrialModeFlag(false)
                 SessionManager.saveLoggedUser(null)
                 finish()
@@ -376,7 +363,7 @@ class MainActivity :
             .setTitle(R.string.disclaimerTitle)
             .setMessage(R.string.disclaimerDesc)
             .setPositiveButton(R.string.disclaimerOKDialog) { _, _ ->
-                //Nothing?
+                //Nothing
             }
             .setCancelable(false)
             .show()
@@ -474,7 +461,6 @@ class MainActivity :
     }
 
 
-    //Si el showCompletedTasks es false, se deben ir ocultando las tareas completadas
     override fun onItemCheck(view: View?, position: Int) {
         if (!showCompletedTasks) {
             refreshList()
@@ -564,7 +550,7 @@ class MainActivity :
         )
     }
 
-    //SHOW/HIDE VIEWS methods
+    //SHOW/HIDE UI methods
     private fun hideAll() {
         UIManager.hide(userGroup)
         UIManager.hide(navView)
@@ -572,7 +558,6 @@ class MainActivity :
         UIManager.hide(loadingCircle)
     }
 
-    //Loading after logging
     private fun showScreenLoading() {
         hideAll()
         UIManager.show(loadingCircle)
@@ -612,8 +597,6 @@ class MainActivity :
 
 
     override fun onResume() {
-        Log.d(TAG_ACTIVITY, "Activity status: onResume()")
-
         if (SessionManager.isTrialMode()) {
             loadTrialAccount()
         } else {
@@ -623,17 +606,16 @@ class MainActivity :
                 showTasksAndSettings()
             }
         }
+
         super.onResume()
     }
 
     override fun onPause() {
-        Log.d(TAG_ACTIVITY, "Activity status: onPause()")
         closeDrawer()
         super.onPause()
     }
 
     override fun onStop() {
-        Log.d(TAG_ACTIVITY, "Activity status: onStop()")
         disableSelection()
         compositeDisposable.clear()
         super.onStop()

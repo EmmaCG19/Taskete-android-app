@@ -20,6 +20,8 @@ import io.reactivex.rxjava3.disposables.Disposable
 
 private const val TAG_ACTIVITY = "LoginFormActivity"
 const val TRIAL_LOGIN = "FirstTrialLogin"
+const val VALID_REGEX_PATTERN =
+    "(?:[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
 
 class LoginFormActivity : AppCompatActivity() {
     private lateinit var etMail: TextInputEditText
@@ -28,7 +30,6 @@ class LoginFormActivity : AppCompatActivity() {
     private lateinit var txtRegisterLink: TextView
     private lateinit var txtTrialLink: TextView
     private lateinit var registeredUsers: List<User>
-    private lateinit var validUser: User
     private val compositeDisposable = CompositeDisposable()
 
     private val usersDAO: UsersDAO by lazy {
@@ -56,7 +57,7 @@ class LoginFormActivity : AppCompatActivity() {
             goToRegisterForm()
         }
 
-        txtTrialLink.setOnClickListener{
+        txtTrialLink.setOnClickListener {
             launchTrialMode()
         }
     }
@@ -86,7 +87,7 @@ class LoginFormActivity : AppCompatActivity() {
 
     }
 
-    private fun launchTrialMode(){
+    private fun launchTrialMode() {
         SessionManager.setTrialModeFlag(true)
         showLoginSuccessMessage()
         Intent(this, MainActivity::class.java).apply {
@@ -136,7 +137,7 @@ class LoginFormActivity : AppCompatActivity() {
 
     private fun mailIsValid(): Boolean {
         val mail = getText(etMail)
-        val validMailRegex = Regex("(?:[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])")
+        val validMailRegex = Regex(VALID_REGEX_PATTERN)
 
         //Not empty
         if (mail.trim().isEmpty()) {

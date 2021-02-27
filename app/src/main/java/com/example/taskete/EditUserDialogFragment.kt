@@ -26,11 +26,11 @@ class EditUserDialogFragment : DialogFragment() {
             alertBuilder.apply {
                 setView(it)
                 setTitle("Change username")
-                setPositiveButton("OK") { _, _ ->
+                setPositiveButton(R.string.change_name_OK) { _, _ ->
                     listener.onPositiveClick(etUsername)
                 }
                 setNegativeButton(
-                    "CANCEL"
+                    R.string.change_name_CANCEL
                 ) { _, _ -> }
                     .setCancelable(false)
             }
