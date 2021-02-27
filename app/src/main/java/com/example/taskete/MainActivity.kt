@@ -433,20 +433,9 @@ class MainActivity :
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> openDrawer()
-            R.id.searchBarItem -> searchTask()
         }
 
         return super.onOptionsItemSelected(item)
-    }
-
-    private fun searchTask() {
-        //https://developer.android.com/guide/topics/search/search-dialog
-        //Enable Search widget
-        //Define a regex to show results while we are typing the query
-        //Search will be filtered by task name
-        //If found, load task/s result in the TasksAdapter
-        //If not found, show icon of tasks not found
-        //Disable search-bar at anytime, Clear search bar and restore adapter
     }
 
     private fun launchTaskActivity(task: Task?) {

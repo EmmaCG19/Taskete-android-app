@@ -4,16 +4,18 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
+import com.example.taskete.firebase.FIREBASE_TOKEN
+import com.example.taskete.firebase.MessagingService
 import com.example.taskete.preferences.SessionManager
+import com.google.firebase.iid.FirebaseInstanceId
 
 class Splashscreen : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splashscreen)
 
-        //Fetch logged user info
-        //1- If user is null -> launchLoginActivity
-        //2- If user != null -> launchMainActivity
+        printFirebaseToken()
         callSessionManager()
 
         Handler(mainLooper).postDelayed(
@@ -28,6 +30,10 @@ class Splashscreen : AppCompatActivity() {
             }, 1500
         )
 
+    }
+
+    private fun printFirebaseToken() {
+        MessagingService.printToken()
     }
 
     private fun callSessionManager() {

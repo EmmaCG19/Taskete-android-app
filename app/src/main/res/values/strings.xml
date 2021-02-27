@@ -95,6 +95,11 @@
     <string name="passwordLengthError">Password must have 4 characters or more</string>
     <string name="passwordMismatchError">Password and confirm password not matching</string>
 
+    <!--Push notifications-->
+    <string name="push_notif_channel_title">Push notifications</string>
+    <string name="push_notif_channel_id">2</string>
+    <string name="push_notif_error">Fetching FCM registration token failed</string>
+    <string name="push_notif_title">Tip of the day</string>
 
     <!--NavDrawer-->
     <string name="nav_header_welcome_message">Welcome</string>
@@ -109,6 +114,7 @@
     <string name="nav_header_default_usermail">Mail error</string>
     <string name="newUsername">New username</string>
     <string name="changeUsernameError">The new username is empty</string>
+
 
     <plurals name="numberOfDeletedTasks">
         <item quantity="one">%d task was deleted</item>
