@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.*
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -52,7 +53,8 @@ private const val PREFERENCE_SHOWCOMPLETE = "swPrefShowCompletedTasks"
 class MainActivity :
     AppCompatActivity(),
     RecyclerItemClickListener.OnItemClickListener,
-    TaskSelection {
+    TaskSelection,
+    EditDialogListener {
 
     private lateinit var rvTasks: RecyclerView
     private lateinit var drawerLayout: DrawerLayout
@@ -153,10 +155,48 @@ class MainActivity :
             when (item.itemId) {
                 R.id.nav_logout -> showLogoutDialog()
                 R.id.nav_settings -> launchSettingsActivity()
+                R.id.nav_change_username -> showEditUsernameDialog()
             }
 
             false
         }
+    }
+
+    private fun showEditUsernameDialog() {
+        EditUserDialogFragment()
+            .show(supportFragmentManager, EditUserDialogFragment.TAG)
+    }
+
+    override fun onPositiveClick(editText: EditText) {
+        val username = editText.text.toString()
+
+        if (username.isEmpty()) {
+            UIManager.showMessage(this, getText(R.string.changeUsernameError).toString())
+        } else {
+            currentUser?.let { user ->
+                user.username = username
+                updateUser(user)
+            }
+        }
+
+        closeDrawer()
+    }
+
+    private fun updateUser(user: User) {
+        usersDAO.updateUser(user).subscribe(object : SingleObserver<Int> {
+            override fun onSubscribe(d: Disposable?) {
+                compositeDisposable.add(d)
+            }
+
+            override fun onSuccess(t: Int?) {
+                loadUserProfile()
+            }
+
+            override fun onError(e: Throwable?) {
+                Log.d(TAG_ACTIVITY, "Could username from current user because ${e?.message}")
+            }
+
+        })
     }
 
     private fun setupToolbar() {
@@ -609,6 +649,7 @@ class MainActivity :
         compositeDisposable.clear()
         super.onStop()
     }
+
 
 }
 //TODO: Refactor onResume()

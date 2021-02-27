@@ -67,9 +67,7 @@ class SessionManager {
             }
         }
 
-        fun isTrialMode(): Boolean{
-            return sharedPreferences.getBoolean(TRIAL_MODE, false)
-        }
+        fun isTrialMode() = sharedPreferences.getBoolean(TRIAL_MODE, false)
     }
 }
 

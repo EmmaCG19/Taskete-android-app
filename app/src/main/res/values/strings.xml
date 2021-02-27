@@ -99,12 +99,13 @@
     <string name="nav_header_username">User</string>
     <string name="nav_open_desc">Nav drawer is open</string>
     <string name="nav_close_desc">Nav drawer is close</string>
-    <string name="nav_menu_editProfile">Edit Profile</string>
+    <string name="nav_menu_changeUsername">Change username</string>
     <string name="nav_menu_settings">Settings</string>
     <string name="nav_menu_logout">Logout</string>
     <string name="nav_header_default_username">User error</string>
     <string name="nav_header_default_usermail">Mail error</string>
-
+    <string name="newUsername">New username</string>
+    <string name="changeUsernameError">The new username is empty</string>
 
     <plurals name="numberOfDeletedTasks">
         <item quantity="one">%d task was deleted</item>

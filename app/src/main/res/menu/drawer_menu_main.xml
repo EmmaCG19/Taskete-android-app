@@ -5,9 +5,9 @@
     tools:showIn="drawer_nav_view">
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_edit_profile"
-            android:icon="@drawable/ic_app_icon"
-            android:title="@string/nav_menu_editProfile" />
+            android:id="@+id/nav_change_username"
+            android:icon="@drawable/ic_edit"
+            android:title="@string/nav_menu_changeUsername" />
 
         <item
             android:id="@+id/nav_settings"
@@ -16,7 +16,7 @@
 
         <item
             android:id="@+id/nav_logout"
-            android:icon="@drawable/ic_app_icon"
+            android:icon="@drawable/ic_logout"
             android:title="@string/nav_menu_logout" />
     </group>
 </menu>
