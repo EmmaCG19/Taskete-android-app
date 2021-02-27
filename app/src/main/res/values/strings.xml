@@ -70,9 +70,12 @@
     <string name="loginSuccess">Login successful</string>
 
     <!--Trial mode-->
-    <string name="disclaimerOKDialog">@string/logoutDialogOK</string>
+    <string name="disclaimerOKDialog">OK</string>
     <string name="disclaimerTitle">Disclaimer</string>
     <string name="disclaimerDesc">This mode is exclusively to show the main screen UI. Several functionalities are disabled for now. </string>
+    <string name="saveFeature">is disabled in trial mode</string>
+    <string name="featureIsDisabled">is disabled in trial mode</string>
+
 
     <!--Register form-->
     <string name="registerTitle">Registration</string>

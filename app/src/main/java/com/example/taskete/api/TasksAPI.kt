@@ -7,5 +7,4 @@ import retrofit2.http.GET
 interface TasksAPI {
     @GET("tasks")
     fun getTasks(): Call<ArrayList<TaskResponse>>
-
 }

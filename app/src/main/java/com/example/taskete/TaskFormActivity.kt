@@ -5,15 +5,19 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.net.Uri
+import android.content.res.ColorStateList
+import android.content.res.XmlResourceParser
+import android.graphics.PorterDuff
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.provider.CalendarContract
 import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import com.example.taskete.data.Priority
@@ -22,9 +26,9 @@ import com.example.taskete.data.User
 import com.example.taskete.db.TasksDAO
 import com.example.taskete.extensions.stringFromDate
 import com.example.taskete.helpers.KeyboardUtil
-import com.example.taskete.helpers.ParcelableUtil
 import com.example.taskete.helpers.UIManager
 import com.example.taskete.notifications.TaskReminderReceiver
+import com.example.taskete.preferences.SessionManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -116,11 +120,17 @@ class TaskFormActivity : AppCompatActivity() {
     private fun setListeners() {
 
         btnSave.setOnClickListener {
-            if (taskRetrieved != null) {
-                editTask()
-            } else {
-                createTask()
+            if(SessionManager.isTrialMode()){
+                showSaveBtnDisabled()
             }
+            else{
+                if (taskRetrieved != null) {
+                    editTask()
+                } else {
+                    createTask()
+                }
+            }
+
         }
 
         btnClearDate.setOnClickListener {
@@ -134,11 +144,18 @@ class TaskFormActivity : AppCompatActivity() {
         }
     }
 
+    private fun showSaveBtnDisabled() {
+        btnSave.setBackgroundColor(resources.getColor(R.color.colorTextDisabled, null))
+        UIManager.showDisabledFeature(this, "Save feature")
+    }
+
     private fun hideDateSelection() {
         UIManager.hide(cardDate)
         selectedDate = null
         flagDateSeleccionada = false
     }
+
+
 
     private fun showDateSelection(date: Date?) {
         date?.let {
@@ -162,8 +179,6 @@ class TaskFormActivity : AppCompatActivity() {
         dateTimeFragment.setTimeZone(TimeZone.getDefault())
         dateTimeFragment.set24HoursMode(false)
 
-
-        //We need to get actual datetime??
         calendar.timeInMillis = System.currentTimeMillis()
         calendar.add(Calendar.HOUR, -1)
         dateTimeFragment.minimumDateTime = calendar.time
@@ -203,10 +218,6 @@ class TaskFormActivity : AppCompatActivity() {
     }
 
     private fun createReminder(): PendingIntent {
-        //Error passing parcel objects with AlarmManager (intent parcelable extras with null values)
-        //Get only taskId and userId
-        //Fetch data from NotificationService
-
         val notifIntent = Intent(this, TaskReminderReceiver::class.java).also { i ->
             i.putExtra(TASK_SELECTED, selectedTask?.id)
             i.putExtra(LOGGED_USER, currentUser?.id)
@@ -222,7 +233,6 @@ class TaskFormActivity : AppCompatActivity() {
         if (flagDateSeleccionada && selectedDate != null) {
             val intent = createReminder()
 
-            //Definir una alarma X minutos antes de la fecha limite
             selectedDate?.let {
                 calendar.timeInMillis = it.time
                 calendar.add(Calendar.MINUTE, -REMINDER_TIME_IN_MINUTES)
@@ -230,19 +240,7 @@ class TaskFormActivity : AppCompatActivity() {
 
             val reminderTime = calendar.timeInMillis
 
-            //Setteo la alarma
             alarmManager.set(AlarmManager.RTC_WAKEUP, reminderTime, intent)
-
-            //Test sending parcelable to task
-//            val intentActivity = Intent(this, TaskFormActivity::class.java).apply {
-//                putExtra(TASK_SELECTED, selectedTask)
-//                putExtra(LOGGED_USER, currentUser)
-//            }
-//
-//            val pendingIntentActivity = PendingIntent.getActivity(this, selectedTask?.id
-//                    ?: DEFAULT_REQUEST_CODE, intentActivity, PendingIntent.FLAG_CANCEL_CURRENT)
-
-//            intent.send()
         }
     }
 
@@ -418,10 +416,5 @@ class TaskFormActivity : AppCompatActivity() {
         compositeDisposable.clear()
         super.onStop()
     }
-
-
-    //TODO: Register broadcast receiver in activity and test
-    //TODO: Test broadcast receiver with Pending Intent
-    //TODO: Test broadcast receiver with AlarmManager
 }
 

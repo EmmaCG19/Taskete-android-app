@@ -37,8 +37,4 @@ object JSONFormatter {
         return task
     }
 
-
-    //Serializar??? un objeto del tipo Task a TaskResponse
-    //Serializar??? un objeto del tipo User a UserResponse(JSON)
-
 }

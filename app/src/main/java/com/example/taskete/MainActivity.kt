@@ -652,5 +652,3 @@ class MainActivity :
 
 
 }
-//TODO: Refactor onResume()
-//TODO: Separate logged user from trial user. Refactor common methods

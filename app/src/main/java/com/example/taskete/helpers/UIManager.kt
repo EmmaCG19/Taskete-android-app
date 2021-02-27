@@ -15,6 +15,13 @@ object UIManager {
         }
     }
 
+    fun showDisabledFeature(context: Context, component: String) {
+        showMessage(
+            context,
+            "$component ${context.getText(R.string.featureIsDisabled)}"
+        )
+    }
+
     fun show(view: View) {
         view.visibility = View.VISIBLE
     }
@@ -22,5 +29,4 @@ object UIManager {
     fun hide(view: View) {
         view.visibility = View.GONE
     }
-
 }

@@ -11,6 +11,6 @@ object NetworkClient {
         .build()
 
     //APIs
-    val tasksApi = retrofit.create(TasksAPI::class.java)
     val usersApi = retrofit.create(UsersAPI::class.java)
+    val tasksApi = retrofit.create(TasksAPI::class.java)
 }
