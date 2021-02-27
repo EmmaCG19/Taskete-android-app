@@ -8,16 +8,14 @@
     <string name="priority_input">Priority...</string>
     <string name="due_time_input">Due Time...</string>
     <string name="due_time_title">Set your task due time</string>
-    <string name="due_time_ok">Ok</string>
-    <string name="due_time_cancel">Cancel</string>
+    <string name="due_time_ok">OK</string>
+    <string name="due_time_cancel">CANCEL</string>
     <string name="error_database_update">The task couldnt be updated</string>
     <string name="error_database_add">The task couldnt be created</string>
     <string name="save_task">Save</string>
     <string name="save_loading_message">Saving task...</string>
     <string name="feature_disabled">Save feature</string>
-    <string name="datetime_lower_error">The selected due time can't be lower than the current time</string>
-    <string name="update_task_error">There was an error when updating the task</string>
-    <string name="create_task_error">There was an error when creating the task</string>
+    <string name="datetime_lower_error">The selected due time can\'t be lower than the current time</string>
     <string name="form_input_error">One or more errors have ocurred</string>
     <string name="form_title_required">"You must complete this field"</string>
 
@@ -46,7 +44,6 @@
     <!--Settings-->
     <string name="visualizationCategory">Visualization</string>
     <string name="extraCategory">Extra</string>
-
     <string name="showAddBtnTitlePref">Show Add Button</string>
     <string name="showAddBtnSummaryPref">Set visibility of the Add Task button</string>
     <string name="showCompletedTasksTitlePref">Show Completed Tasks</string>
@@ -56,7 +53,7 @@
     <!--About me-->
     <string name="app_description">App creada por el alumno Emmanuel Fernandez como proyecto de la materia de Programación IV</string>
     <string name="app_repo_link">Link a Github</string>
-    <string name="app_version">v1.1</string>
+    <string name="app_version">v1.2</string>
 
     <!--Notification-->
     <string name="channelId">1</string>
@@ -82,7 +79,6 @@
     <string name="disclaimerDesc">This mode is exclusively to show the main screen UI. Several functionalities are disabled for now. </string>
     <string name="saveFeature">is disabled in trial mode</string>
     <string name="featureIsDisabled">is disabled in trial mode</string>
-
 
     <!--Register form-->
     <string name="registerTitle">Registration</string>
@@ -122,7 +118,11 @@
     <string name="newUsername">New username</string>
     <string name="changeUsernameError">The new username is empty</string>
 
+    <!--EditDialog-->
+    <string name="change_name_OK">@string/due_time_ok</string>
+    <string name="change_name_CANCEL">@string/due_time_cancel</string>
 
+    <!--Plurals-->
     <plurals name="numberOfDeletedTasks">
         <item quantity="one">%d task was deleted</item>
         <item quantity="other">%d tasks were deleted</item>

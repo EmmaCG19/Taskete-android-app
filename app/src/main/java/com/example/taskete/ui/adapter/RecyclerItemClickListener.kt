@@ -1,4 +1,4 @@
-package com.example.taskete
+package com.example.taskete.ui.adapter
 
 import android.content.Context
 import android.view.GestureDetector
@@ -21,7 +21,26 @@ class RecyclerItemClickListener(
         fun onItemCheck(view: View?, position: Int)
     }
 
-    private val mGestureDetector: GestureDetector
+    private val mGestureDetector: GestureDetector = GestureDetector(context, object : SimpleOnGestureListener() {
+        override fun onSingleTapUp(e: MotionEvent): Boolean {
+            return true
+        }
+
+        override fun onDoubleTap(e: MotionEvent): Boolean {
+            val childView = recyclerView.findChildViewUnder(e.x, e.y)
+            if (childView != null && mListener != null) {
+                mListener.onItemDoubleTouch(childView, recyclerView.getChildAdapterPosition(childView))
+            }
+            return true
+        }
+
+        override fun onLongPress(e: MotionEvent) {
+            val childView = recyclerView.findChildViewUnder(e.x, e.y)
+            if (childView != null && mListener != null) {
+                mListener.onItemLongPress(childView, recyclerView.getChildAdapterPosition(childView))
+            }
+        }
+    })
 
     override fun onInterceptTouchEvent(view: RecyclerView, e: MotionEvent): Boolean {
         val childView = view.findChildViewUnder(e.x, e.y)
@@ -36,26 +55,4 @@ class RecyclerItemClickListener(
 
     override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
 
-    init {
-        mGestureDetector = GestureDetector(context, object : SimpleOnGestureListener() {
-            override fun onSingleTapUp(e: MotionEvent): Boolean {
-                return true
-            }
-
-            override fun onDoubleTap(e: MotionEvent): Boolean {
-                val childView = recyclerView.findChildViewUnder(e.x, e.y)
-                if (childView != null && mListener != null) {
-                    mListener.onItemDoubleTouch(childView, recyclerView.getChildAdapterPosition(childView))
-                }
-                return true
-            }
-
-            override fun onLongPress(e: MotionEvent) {
-                val childView = recyclerView.findChildViewUnder(e.x, e.y)
-                if (childView != null && mListener != null) {
-                    mListener.onItemLongPress(childView, recyclerView.getChildAdapterPosition(childView))
-                }
-            }
-        })
-    }
 }

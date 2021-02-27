@@ -1,9 +1,9 @@
-package com.example.taskete
+package com.example.taskete.ui.activities
 
-import android.util.Log
 import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
+import com.example.taskete.R
 
 
 class TaskSelectionMode(

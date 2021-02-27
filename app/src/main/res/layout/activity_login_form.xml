@@ -8,7 +8,7 @@
     android:layout_marginTop="10dp"
     android:orientation="vertical"
     android:paddingTop="5dp"
-    tools:context=".LoginFormActivity">
+    tools:context=".ui.activities.LoginFormActivity">
 
     <TextView
         android:layout_width="match_parent"

@@ -15,19 +15,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Taskete">
-        <activity android:name=".Splashscreen">
+        <activity android:name=".ui.activities.Splashscreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".RegisterFormActivity" />
-        <activity android:name=".TaskFormActivity"/>
-        <activity android:name=".AboutMeActivity" />
+        <activity android:name=".ui.activities.RegisterFormActivity" />
+        <activity android:name=".ui.activities.TaskFormActivity"/>
+        <activity android:name=".ui.activities.AboutMeActivity" />
         <activity android:name=".preferences.PreferencesActivity" />
-        <activity android:name=".MainActivity" />
-        <activity android:name=".LoginFormActivity"/>
+        <activity android:name=".ui.activities.MainActivity" />
+        <activity android:name=".ui.activities.LoginFormActivity"/>
 
         <receiver
             android:name=".notifications.TaskReminderReceiver"

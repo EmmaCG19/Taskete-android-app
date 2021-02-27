@@ -18,7 +18,6 @@ class TasksDAO(context: Context) {
         dao = helper.getDao(Task::class.java)
     }
 
-
     fun getUserTasks(userId: Int): Single<List<Task>> {
         return Single.fromCallable {
             dao.queryBuilder()
@@ -31,7 +30,6 @@ class TasksDAO(context: Context) {
     }
 
 
-    //General Task methods
     fun getTasks(): Single<List<Task>> {
         return Single.fromCallable { dao.queryForAll() }
                 .subscribeOn(Schedulers.io())
@@ -58,12 +56,6 @@ class TasksDAO(context: Context) {
 
     fun updateTask(task: Task): Single<Int> {
         return Single.fromCallable { dao.update(task) }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-    }
-
-    fun executeCustomQuery(query: String): Single<Int> {
-        return Single.fromCallable { dao.executeRaw(query) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
     }

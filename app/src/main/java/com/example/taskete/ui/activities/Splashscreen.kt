@@ -1,14 +1,12 @@
-package com.example.taskete
+package com.example.taskete.ui.activities
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
-import com.example.taskete.firebase.FIREBASE_TOKEN
+import com.example.taskete.R
 import com.example.taskete.firebase.MessagingService
 import com.example.taskete.preferences.SessionManager
-import com.google.firebase.iid.FirebaseInstanceId
 
 class Splashscreen : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

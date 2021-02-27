@@ -12,7 +12,6 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import kotlin.collections.HashMap
 
-private const val NOT_ASSIGNED = "NOTASSIGNED"
 
 @DatabaseTable(tableName = "Tasks")
 class Task(
@@ -38,7 +37,7 @@ class Task(
     @RequiresApi(Build.VERSION_CODES.Q)
     constructor(parcel: Parcel) : this(
             parcel.readValue(Int::class.java.classLoader) as Int?,
-            parcel.readString() as String, //TASK
+            parcel.readString() as String,
             parcel.readString() as String,
             parcel.readValue(Priority::class.java.classLoader) as Priority,
             parcel.readBoolean(),

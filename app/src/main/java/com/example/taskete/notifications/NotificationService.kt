@@ -9,10 +9,10 @@ import android.os.Handler
 import android.util.Log
 import androidx.core.app.JobIntentService
 import androidx.core.app.NotificationCompat
-import com.example.taskete.LOGGED_USER
+import com.example.taskete.ui.activities.LOGGED_USER
 import com.example.taskete.R
-import com.example.taskete.TASK_SELECTED
-import com.example.taskete.TaskFormActivity
+import com.example.taskete.ui.activities.TASK_SELECTED
+import com.example.taskete.ui.activities.TaskFormActivity
 import com.example.taskete.data.Task
 import com.example.taskete.data.User
 import com.example.taskete.db.TasksDAO
@@ -26,9 +26,6 @@ import java.util.*
 
 //DEBUGGING
 private const val TAG_ACTIVITY = "NotificationService"
-
-const val TASK_NOTIFICATION_ID = "Notification-id"
-const val TASK_NOTIFICATION = "Notification"
 const val JOB_ID = 100
 const val DEFAULT_ID = 1000
 
@@ -64,7 +61,6 @@ class NotificationService : JobIntentService() {
         val userId = intent.extras?.getInt(LOGGED_USER)
 
         if (userId == SessionManager.restoreLoggedUser()) {
-            //Async
             getTask(taskId)
             getUser(userId)
 
@@ -79,7 +75,6 @@ class NotificationService : JobIntentService() {
     }
 
     private fun getTask(taskId: Int?) {
-        //Fetch task data
         taskId?.let {
             tasksDAO.getTask(taskId).subscribe(object : SingleObserver<Task?> {
                 override fun onSubscribe(d: Disposable?) {
@@ -101,7 +96,6 @@ class NotificationService : JobIntentService() {
 
 
     private fun getUser(userId: Int?) {
-        //Fetch user data
         userId?.let {
             usersDAO.getUser(userId).subscribe(object : SingleObserver<User?> {
                 override fun onSubscribe(d: Disposable?) {
@@ -122,15 +116,13 @@ class NotificationService : JobIntentService() {
     }
 
     private fun setNotification() {
-        //Create notification
-        val notificationManager = this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notification = createNotification(task)
         notification.contentIntent = setNotifIntent(task)
 
-        //Notify
         notificationManager.notify(task?.id ?: DEFAULT_ID, notification)
 
-        //Confirmation Log
         sendConfirmationLog()
     }
 
@@ -147,13 +139,13 @@ class NotificationService : JobIntentService() {
 
     private fun createNotification(task: Task?): Notification {
         return NotificationCompat.Builder(this, channelId)
-                .setContentTitle(getText(R.string.reminderTitle))
-                .setContentText("${user?.username} you need to check '${task?.title}'!")
-                .setSmallIcon(R.drawable.ic_app_icon)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setChannelId(channelId)
-                .setAutoCancel(true)
-                .build()
+            .setContentTitle(getText(R.string.reminderTitle))
+            .setContentText("${user?.username} you need to check '${task?.title}'!")
+            .setSmallIcon(R.drawable.ic_app_icon)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setChannelId(channelId)
+            .setAutoCancel(true)
+            .build()
     }
 
     //Confirmation log

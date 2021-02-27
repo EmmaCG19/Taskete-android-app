@@ -1,12 +1,10 @@
-package com.example.taskete
+package com.example.taskete.ui.adapter
 
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.os.Handler
-import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
@@ -15,6 +13,7 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.example.taskete.R
 import com.example.taskete.data.Priority
 import com.example.taskete.data.Task
 import com.example.taskete.db.TasksDAO
@@ -93,6 +92,13 @@ class TasksAdapter(
         }
     }
 
+    override fun getItemCount(): Int = tasks.size
+
+
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
+
     private fun setDateAlert(dueDate: TextView) {
         val context = dueDate.context
         val txtDate = dueDate.text.toString()
@@ -102,7 +108,6 @@ class TasksAdapter(
             val actualDate = Date(System.currentTimeMillis())
             val diff = actualDate.compareTo(taskDate)
 
-            //Se cambia el calor de acuerdo a la proximidad
             if (diff > 0) {
                 dueDate.setTextColor(ContextCompat.getColor(context, R.color.colorPriorityHigh))
                 dueDate.setText(R.string.alertNoTimeLeft)
@@ -112,13 +117,6 @@ class TasksAdapter(
             }
         }
 
-    }
-
-
-    override fun getItemCount(): Int = tasks.size
-
-    override fun getItemViewType(position: Int): Int {
-        return position
     }
 
     private fun resetViewHolder(holder: TaskViewHolder) {

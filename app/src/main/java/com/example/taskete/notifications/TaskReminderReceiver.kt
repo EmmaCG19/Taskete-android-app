@@ -4,11 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.example.taskete.LOGGED_USER
-import com.example.taskete.TASK_SELECTED
-import com.example.taskete.data.Task
-import com.example.taskete.data.User
-import com.example.taskete.helpers.ParcelableUtil
+import com.example.taskete.ui.activities.LOGGED_USER
+import com.example.taskete.ui.activities.TASK_SELECTED
 
 
 //DEBUGGING

@@ -1,4 +1,4 @@
-package com.example.taskete
+package com.example.taskete.ui.activities
 
 import android.app.AlertDialog
 import android.app.Dialog
@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.EditText
 import androidx.fragment.app.DialogFragment
+import com.example.taskete.R
 
 
 class EditUserDialogFragment : DialogFragment() {
@@ -26,11 +27,11 @@ class EditUserDialogFragment : DialogFragment() {
             alertBuilder.apply {
                 setView(it)
                 setTitle("Change username")
-                setPositiveButton("OK") { _, _ ->
+                setPositiveButton(R.string.change_name_OK) { _, _ ->
                     listener.onPositiveClick(etUsername)
                 }
                 setNegativeButton(
-                    "CANCEL"
+                    R.string.change_name_CANCEL
                 ) { _, _ -> }
                     .setCancelable(false)
             }

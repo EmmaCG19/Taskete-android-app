@@ -1,6 +1,5 @@
 package com.example.taskete.firebase
 
-import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -9,9 +8,8 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.core.content.res.TypedArrayUtils.getText
-import com.example.taskete.LoginFormActivity
-import com.example.taskete.MainActivity
+import com.example.taskete.ui.activities.LoginFormActivity
+import com.example.taskete.ui.activities.MainActivity
 import com.example.taskete.R
 import com.example.taskete.preferences.SessionManager
 import com.google.android.gms.tasks.OnCompleteListener

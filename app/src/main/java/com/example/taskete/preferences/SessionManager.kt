@@ -12,8 +12,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 
-/*The Session Manager helper must retrieve and save the (Id) of the current logged user in the SharedPreferences file*/
-
 class SessionManager {
     companion object {
         const val DEFAULT_USER_ID = -1

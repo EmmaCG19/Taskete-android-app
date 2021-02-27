@@ -1,25 +1,20 @@
-package com.example.taskete
+package com.example.taskete.ui.activities
 
 import android.app.AlarmManager
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.res.ColorStateList
-import android.content.res.XmlResourceParser
-import android.graphics.PorterDuff
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.provider.CalendarContract
 import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.RadioGroup
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import com.example.taskete.R
 import com.example.taskete.data.Priority
 import com.example.taskete.data.Task
 import com.example.taskete.data.User
@@ -297,7 +292,7 @@ class TaskFormActivity : AppCompatActivity() {
                 setReminder()
 
             } catch (e: SQLException) {
-                UIManager.showMessage(this, getText(R.string.update_task_error).toString())
+                UIManager.showMessage(this, getText(R.string.error_database_update).toString())
             } finally {
                 finishActivity()
             }
@@ -316,7 +311,7 @@ class TaskFormActivity : AppCompatActivity() {
                 }
 
             } catch (e: SQLException) {
-                UIManager.showMessage(this, getText(R.string.create_task_error).toString())
+                UIManager.showMessage(this, getText(R.string.error_database_add).toString())
             } finally {
                 finishActivity()
             }
