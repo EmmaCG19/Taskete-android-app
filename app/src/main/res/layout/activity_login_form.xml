@@ -68,8 +68,25 @@
         android:id="@+id/txtRegisterLink"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
+        android:layout_marginBottom="10dp"
         android:inputType="textUri"
         android:text="@string/loginRegister"
+        android:textAlignment="center" />
+
+    <TextView
+        android:id="@+id/txtOption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="@string/loginOption"
+        android:textAlignment="center" />
+
+    <TextView
+        android:id="@+id/txtTrialLink"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
+        android:inputType="textUri"
+        android:text="@string/loginTrialAccount"
         android:textAlignment="center" />
 </LinearLayout>

@@ -9,36 +9,38 @@ import com.example.taskete.extensions.*
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.field.ForeignCollectionField
 import com.j256.ormlite.table.DatabaseTable
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 
 @DatabaseTable(tableName = "Users")
 class User(
-        @DatabaseField(generatedId = true)
-        var id: Int? = null,
-        @DatabaseField
-        var username: String,
-        @DatabaseField(unique = true)
-        var mail: String,
-        @DatabaseField
-        var password: String,
-        @DatabaseField
-        var avatar: String? = null, //Store filepath or image
-        @ForeignCollectionField(eager = false) //eager=false need to refresh before modifying the tasks field
-        var tasks: Collection<Task>
+    @DatabaseField(generatedId = true)
+    var id: Int? = null,
+    @DatabaseField
+    var username: String,
+    @DatabaseField(unique = true)
+    var mail: String,
+    @DatabaseField
+    var password: String,
+    @DatabaseField
+    var avatar: String? = null, //Store filepath or image
+    @ForeignCollectionField(eager = false) //eager=false need to refresh before modifying the tasks field
+    var tasks: Collection<Task>
 ) : Parcelable {
 
     constructor() : this(null, "", "", "", null, arrayListOf<Task>())
 
     @RequiresApi(Build.VERSION_CODES.Q)
     constructor(parcel: Parcel) : this(
-            parcel.readValue(Int::class.java.classLoader) as Int?,
-            parcel.readString() as String, //USER
-            parcel.readString() as String, //USER
-            parcel.readString() as String, //USER
-            parcel.readString(),
-            arrayListOf<Task>().apply {
-                parcel.readParcelableList(this, Task::class.java.classLoader)
-            }
+        parcel.readValue(Int::class.java.classLoader) as Int?,
+        parcel.readString() as String, //USER
+        parcel.readString() as String, //USER
+        parcel.readString() as String, //USER
+        parcel.readString(),
+        arrayListOf<Task>().apply {
+            parcel.readParcelableList(this, Task::class.java.classLoader)
+        }
     )
 
     //TODO: CIRCULAR REFERENCE WITH WRITE PARCELABLE (USER -> TASKS -> USER -> TASKS -> ...)
@@ -72,4 +74,16 @@ class User(
     }
 
 }
+
+@JsonClass(generateAdapter = true)
+class UserResponse(
+    @Json(name = "userId")
+    var id: Int?,
+    var username: String,
+    var mail: String,
+    var password: String,
+    var avatar: String? = null, //Store filepath or image
+    var tasks: List<TaskResponse>
+)
+
 

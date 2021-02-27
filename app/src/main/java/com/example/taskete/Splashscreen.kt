@@ -17,15 +17,15 @@ class Splashscreen : AppCompatActivity() {
         callSessionManager()
 
         Handler(mainLooper).postDelayed(
-                {
-                    if (SessionManager.restoreLoggedUser() != SessionManager.DEFAULT_USER_ID) {
-                        launchMainActivity()
-                    } else {
-                        launchLoginActivity()
-                    }
+            {
+                if (SessionManager.restoreLoggedUser() != SessionManager.DEFAULT_USER_ID || SessionManager.isTrialMode()) {
+                    launchMainActivity()
+                } else {
+                    launchLoginActivity()
+                }
 
-                    finish()
-                }, 1500
+                finish()
+            }, 1500
         )
 
     }

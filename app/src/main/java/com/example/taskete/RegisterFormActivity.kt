@@ -138,7 +138,7 @@ class RegisterFormActivity : AppCompatActivity() {
     private fun usernameIsValid(): Boolean {
         val username = getText(etUsername)
 
-        return if (username.trim().isNullOrEmpty()) {
+        return if (username.trim().isEmpty()) {
             etUsername.error = resources.getText(R.string.usernameEmptyError)
             false
         } else
@@ -157,7 +157,7 @@ class RegisterFormActivity : AppCompatActivity() {
         }
 
         //Not empty
-        if (mail.trim().isNullOrEmpty()) {
+        if (mail.trim().isEmpty()) {
             etMail.error = resources.getText(R.string.mailEmptyError)
             return false
         }
@@ -195,7 +195,7 @@ class RegisterFormActivity : AppCompatActivity() {
         }
 
         //Not empty (both)
-        if (pass.trim().isNullOrEmpty()) {
+        if (pass.trim().isEmpty()) {
             etPass.error = resources.getText(R.string.passwordEmptyError)
             return false
         }

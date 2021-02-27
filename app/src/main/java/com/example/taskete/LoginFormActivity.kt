@@ -9,6 +9,7 @@ import android.widget.EditText
 import android.widget.TextView
 import com.example.taskete.data.User
 import com.example.taskete.db.UsersDAO
+import com.example.taskete.helpers.KeyboardUtil
 import com.example.taskete.helpers.UIManager
 import com.example.taskete.preferences.SessionManager
 import com.google.android.material.button.MaterialButton
@@ -18,12 +19,14 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 
 private const val TAG_ACTIVITY = "LoginFormActivity"
+const val TRIAL_LOGIN = "FirstTrialLogin"
 
 class LoginFormActivity : AppCompatActivity() {
     private lateinit var etMail: TextInputEditText
     private lateinit var etPassword: TextInputEditText
     private lateinit var btnLogin: MaterialButton
     private lateinit var txtRegisterLink: TextView
+    private lateinit var txtTrialLink: TextView
     private lateinit var registeredUsers: List<User>
     private lateinit var validUser: User
     private val compositeDisposable = CompositeDisposable()
@@ -43,6 +46,7 @@ class LoginFormActivity : AppCompatActivity() {
         etPassword = findViewById(R.id.etLoginPassword)
         btnLogin = findViewById(R.id.btnLogin)
         txtRegisterLink = findViewById(R.id.txtRegisterLink)
+        txtTrialLink = findViewById(R.id.txtTrialLink)
 
         btnLogin.setOnClickListener {
             loginUser()
@@ -52,8 +56,9 @@ class LoginFormActivity : AppCompatActivity() {
             goToRegisterForm()
         }
 
-//        //Get preferences
-//        SessionManager.getPreferences(this@LoginFormActivity.applicationContext)
+        txtTrialLink.setOnClickListener{
+            launchTrialMode()
+        }
     }
 
     private fun loginUser() {
@@ -81,7 +86,17 @@ class LoginFormActivity : AppCompatActivity() {
 
     }
 
+    private fun launchTrialMode(){
+        SessionManager.setTrialModeFlag(true)
+        showLoginSuccessMessage()
+        Intent(this, MainActivity::class.java).apply {
+            putExtra(TRIAL_LOGIN, true)
+            startActivity(this)
+        }
+    }
+
     private fun launchUserSession(user: User) {
+        SessionManager.setTrialModeFlag(false)
         showLoginSuccessMessage()
         saveSession(user)
         Handler(mainLooper).postDelayed({

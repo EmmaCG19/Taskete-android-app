@@ -8,6 +8,8 @@ import androidx.annotation.RequiresApi
 import com.example.taskete.extensions.*
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.table.DatabaseTable
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import kotlin.collections.HashMap
 
 private const val NOT_ASSIGNED = "NOTASSIGNED"
@@ -82,3 +84,17 @@ enum class Priority {
     MEDIUM,
     HIGH
 }
+
+
+@JsonClass(generateAdapter = true)
+class TaskResponse(
+    @Json(name="taskId")
+    var id: Int? = null,
+    var title: String,
+    var description: String,
+    var priority: Priority,
+    var isDone: Boolean,
+    var dueDate: String?,
+    var userId: Int
+)
+

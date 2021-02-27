@@ -7,6 +7,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.example.taskete.AboutMeActivity
 import com.example.taskete.R
+import com.example.taskete.TRIAL_LOGIN
 
 
 class PreferencesFragment : PreferenceFragmentCompat() {

@@ -64,8 +64,15 @@
     <string name="loginPassword">Password</string>
     <string name="loginButton">Login</string>
     <string name="loginRegister">No account? Register here!</string>
+    <string name="loginTrialAccount">Check our app without logging!</string>
+    <string name="loginOption">or</string>
     <string name="loginError">Check credentials. Mail or password is invalid</string>
     <string name="loginSuccess">Login successful</string>
+
+    <!--Trial mode-->
+    <string name="disclaimerOKDialog">@string/logoutDialogOK</string>
+    <string name="disclaimerTitle">Disclaimer</string>
+    <string name="disclaimerDesc">This mode is exclusively to show the main screen UI. Several functionalities are disabled for now. </string>
 
     <!--Register form-->
     <string name="registerTitle">Registration</string>

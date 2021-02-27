@@ -19,6 +19,7 @@ class SessionManager {
         const val DEFAULT_USER_ID = -1
         const val SESSION_PREFERENCES = "SessionPreferences"
         const val LOGGED_USER_ID = "LoggedUserId"
+        const val TRIAL_MODE ="Trial"
         private const val FIRST_LOGIN = "FirstLogin"
         private val compositeDisposable = CompositeDisposable()
         private lateinit var sharedPreferences: SharedPreferences
@@ -51,14 +52,23 @@ class SessionManager {
             return sharedPreferences.getInt(LOGGED_USER_ID, DEFAULT_USER_ID)
         }
 
-        ///Pass null to reset credentials
         fun saveLoggedUser(userId: Int?) {
             sharedPreferences.edit {
                 putInt(LOGGED_USER_ID, userId ?: DEFAULT_USER_ID)
                 putBoolean(FIRST_LOGIN, true)
                 commit()
             }
+        }
 
+        fun setTrialModeFlag(value: Boolean){
+            sharedPreferences.edit{
+                putBoolean(TRIAL_MODE, value)
+                commit()
+            }
+        }
+
+        fun isTrialMode(): Boolean{
+            return sharedPreferences.getBoolean(TRIAL_MODE, false)
         }
     }
 }

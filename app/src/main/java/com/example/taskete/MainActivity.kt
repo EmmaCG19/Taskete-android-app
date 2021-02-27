@@ -18,11 +18,14 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.taskete.api.NetworkClient
 import com.example.taskete.data.Task
 import com.example.taskete.data.User
+import com.example.taskete.data.UserResponse
 import com.example.taskete.db.TasksDAO
 import com.example.taskete.db.UsersDAO
 import com.example.taskete.helpers.UIManager
+import com.example.taskete.json.JSONFormatter
 import com.example.taskete.preferences.PreferencesActivity
 import com.example.taskete.preferences.SessionManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -36,6 +39,9 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 const val TASK_SELECTED = "Task_selected"
 const val LOGGED_USER = "LoggedUser"
@@ -44,9 +50,9 @@ private const val PREFERENCE_ADDTASK = "swShowAddBtn"
 private const val PREFERENCE_SHOWCOMPLETE = "swPrefShowCompletedTasks"
 
 class MainActivity :
-        AppCompatActivity(),
-        RecyclerItemClickListener.OnItemClickListener,
-        TaskSelection {
+    AppCompatActivity(),
+    RecyclerItemClickListener.OnItemClickListener,
+    TaskSelection {
 
     private lateinit var rvTasks: RecyclerView
     private lateinit var drawerLayout: DrawerLayout
@@ -73,10 +79,12 @@ class MainActivity :
         SessionManager.restoreLoggedUser()
     }
 
+    private var firstTrialLogin: Boolean
+
     private val preferences: Single<SharedPreferences> by lazy {
         Single.fromCallable { PreferenceManager.getDefaultSharedPreferences(this) }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
     }
     private val tasksDAO: TasksDAO by lazy {
         TasksDAO(this@MainActivity.applicationContext)
@@ -98,6 +106,7 @@ class MainActivity :
         showCompletedTasks = false
         userRetrieved = false
         currentUser = null
+        firstTrialLogin = false
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -135,7 +144,8 @@ class MainActivity :
         navDrawer = findViewById(R.id.drawer_layout_main)
         navView = findViewById(R.id.drawer_nav_view)
 
-        val toggle = ActionBarDrawerToggle(this, navDrawer, R.string.nav_open_desc, R.string.nav_close_desc)
+        val toggle =
+            ActionBarDrawerToggle(this, navDrawer, R.string.nav_open_desc, R.string.nav_close_desc)
         navDrawer.addDrawerListener(toggle)
         toggle.syncState()
 
@@ -160,28 +170,31 @@ class MainActivity :
     private fun getLoggedUser() {
         if (userId != SessionManager.DEFAULT_USER_ID) {
             usersDAO.getUser(userId)
-                    .subscribe(object : SingleObserver<User?> {
-                        override fun onSubscribe(d: Disposable?) {
-                            compositeDisposable.add(d)
-                        }
+                .subscribe(object : SingleObserver<User?> {
+                    override fun onSubscribe(d: Disposable?) {
+                        compositeDisposable.add(d)
+                    }
 
-                        override fun onSuccess(t: User?) {
-                            Log.d(TAG_ACTIVITY, "Showing current user info: ${t?.mail} | ${t?.username}")
-                            currentUser = t
-                            userRetrieved = true
-                            loadUserProfile()
-                        }
+                    override fun onSuccess(t: User?) {
+                        Log.d(
+                            TAG_ACTIVITY,
+                            "Showing current user info: ${t?.mail} | ${t?.username}"
+                        )
+                        currentUser = t
+                        userRetrieved = true
+                        loadUserProfile()
+                    }
 
-                        override fun onError(e: Throwable?) {
-                            Log.d(TAG_ACTIVITY, "Error retrieving user: ${e?.message}")
-                        }
-                    })
+                    override fun onError(e: Throwable?) {
+                        Log.d(TAG_ACTIVITY, "Error retrieving user: ${e?.message}")
+                    }
+                })
         } else {
             finish()
         }
     }
 
-    private fun getUserTasks() {
+    private fun getUserTasksFromDB() {
         tasksDAO.getUserTasks(userId).subscribe(object : SingleObserver<List<Task>> {
             override fun onSubscribe(d: Disposable?) {
                 compositeDisposable.add(d)
@@ -199,15 +212,70 @@ class MainActivity :
         })
     }
 
+    private fun loadLoggedAccount() {
+        showScreenLoading()
+        getLoggedUser()
+        showSettingsAfter(1000)
+    }
+
+    private fun loadTrialAccount() {
+        checkFirstLogin()
+        showScreenLoading()
+        getTrialUser()
+    }
+
+    private fun checkFirstLogin() {
+        firstTrialLogin = intent.extras?.getBoolean(TRIAL_LOGIN, false) ?: false
+
+        if (firstTrialLogin) {
+            showDisclaimerDialog()
+            intent?.removeExtra(TRIAL_LOGIN)
+        }
+    }
+
+    private fun showSettingsAfter(milliseconds: Long) {
+        Handler(mainLooper).postDelayed({
+            hideScreenLoading()
+            showTasksAndSettings()
+        }, milliseconds)
+    }
+
+    private fun getUserTasks() {
+        if (SessionManager.isTrialMode()) {
+            getUserTasksFromAPI()
+        } else {
+            getUserTasksFromDB()
+        }
+    }
+
+    private fun getUserTasksFromAPI() {
+        tasks = currentUser?.tasks as ArrayList<Task>
+    }
+
+    private fun getTrialUser() {
+        NetworkClient.usersApi.getTrialUser().enqueue(object : Callback<UserResponse> {
+            override fun onResponse(call: Call<UserResponse>, response: Response<UserResponse>) {
+                Log.d(TAG_ACTIVITY, "User could be fetched from API")
+                currentUser = response.body()?.let { JSONFormatter.getUserFromResponse(it) }
+                loadUserProfile()
+                showSettingsAfter(0)
+            }
+
+            override fun onFailure(call: Call<UserResponse>, t: Throwable) {
+                Log.d(TAG_ACTIVITY, "User could NOT be fetched from API because ${t.message}")
+            }
+        })
+    }
+
     private fun loadUserProfile() {
         val navHeader = navView.getHeaderView(0)
         val txtUsername = navHeader.findViewById<TextView>(R.id.txtUsername)
         val txtUsermail = navHeader.findViewById<TextView>(R.id.txtUserMail)
 
         txtUsername.text = currentUser?.username
-                ?: resources.getString(R.string.nav_header_default_username)
+            ?: resources.getString(R.string.nav_header_default_username)
         txtUsermail.text = currentUser?.mail
-                ?: resources.getString(R.string.nav_header_default_usermail)
+            ?: resources.getString(R.string.nav_header_default_usermail)
 
     }
 
@@ -237,7 +305,7 @@ class MainActivity :
         navDrawer.openDrawer(GravityCompat.START)
     }
 
-    private fun launchLoginActivity(){
+    private fun launchLoginActivity() {
         Intent(this, LoginFormActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(this)
@@ -247,23 +315,36 @@ class MainActivity :
     private fun showLogoutDialog() {
         closeDrawer()
         AlertDialog.Builder(this)
-                .setTitle(R.string.logoutDialogTitle)
-                .setMessage(R.string.logoutDialogDesc)
-                .setPositiveButton(R.string.logoutDialogOK) { _, _ ->
-                    //Logout OK
-                    SessionManager.saveLoggedUser(null)
-                    launchLoginActivity()
-                }
-                .setNegativeButton(R.string.logoutDialogNO) { _, _ ->
-                    //Go back to Menu
-                }
-                .setCancelable(false)
-                .show()
+            .setTitle(R.string.logoutDialogTitle)
+            .setMessage(R.string.logoutDialogDesc)
+            .setPositiveButton(R.string.logoutDialogOK) { _, _ ->
+                //Logout OK
+                SessionManager.setTrialModeFlag(false)
+                SessionManager.saveLoggedUser(null)
+                launchLoginActivity()
+            }
+            .setNegativeButton(R.string.logoutDialogNO) { _, _ ->
+                //Go back to Menu
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+
+    private fun showDisclaimerDialog() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.disclaimerTitle)
+            .setMessage(R.string.disclaimerDesc)
+            .setPositiveButton(R.string.disclaimerOKDialog) { _, _ ->
+                //Nothing?
+            }
+            .setCancelable(false)
+            .show()
     }
 
     private fun setupCAB() {
         rvTasks.addOnItemTouchListener(
-                RecyclerItemClickListener(this, rvTasks, this)
+            RecyclerItemClickListener(this, rvTasks, this)
         )
     }
 
@@ -431,24 +512,27 @@ class MainActivity :
 
     override fun showDeleteConfirmationDialog() {
         AlertDialog.Builder(this)
-                .setTitle(R.string.deleteDialogTitle)
-                .setMessage(R.string.deleteDialogDesc)
-                .setPositiveButton(R.string.deleteDialogOK) { _, _ ->
-                    deleteSelectedTasks()
-                    UIManager.showMessage(this, buildDeleteMessage())
-                    refreshList()
-                }
-                .setNegativeButton(R.string.deleteDialogNO) { _, _ ->
-                    resetSelection()
-                }
-                .setCancelable(false)
-                .show()
+            .setTitle(R.string.deleteDialogTitle)
+            .setMessage(R.string.deleteDialogDesc)
+            .setPositiveButton(R.string.deleteDialogOK) { _, _ ->
+                deleteSelectedTasks()
+                UIManager.showMessage(this, buildDeleteMessage())
+                refreshList()
+            }
+            .setNegativeButton(R.string.deleteDialogNO) { _, _ ->
+                resetSelection()
+            }
+            .setCancelable(false)
+            .show()
     }
-
 
     private fun buildDeleteMessage(): String {
         val numberOfItems = selectedTasks.size
-        return resources.getQuantityString(R.plurals.numberOfDeletedTasks, numberOfItems, numberOfItems)
+        return resources.getQuantityString(
+            R.plurals.numberOfDeletedTasks,
+            numberOfItems,
+            numberOfItems
+        )
     }
 
     //SHOW/HIDE VIEWS methods
@@ -497,24 +581,19 @@ class MainActivity :
         }, 1000)
     }
 
+
     override fun onResume() {
         Log.d(TAG_ACTIVITY, "Activity status: onResume()")
 
-        //1- GET USER
-        if (!userRetrieved) {
-            showScreenLoading()
-            getLoggedUser()
-
-            Handler(mainLooper).postDelayed({
-                hideScreenLoading()
-                showTasksAndSettings()
-            }, 1000)
-
+        if (SessionManager.isTrialMode()) {
+            loadTrialAccount()
         } else {
-            //2- GET USER TASKS AND SETTINGS ONLY
-            showTasksAndSettings()
+            if (!userRetrieved) {
+                loadLoggedAccount()
+            } else {
+                showTasksAndSettings()
+            }
         }
-
         super.onResume()
     }
 
@@ -532,19 +611,5 @@ class MainActivity :
     }
 
 }
-//TODO: Define a const for elapsed time when loading tasks
 //TODO: Refactor onResume()
-
-//Dummy tasks
-//INSERT INTO Tasks(title, description, priority, isDone, dueDate,userId) VALUES
-//('Task1', 'This is a task', 'HIGH', FALSE, NULL, 1),
-//('Task2', 'This is a task', 'LOW', FALSE, NULL, 1),
-//('Task3', 'This is a task', 'LOW', FALSE, NULL, 1),
-//('Task4', 'This is a task', 'NOTASSIGNED', FALSE, NULL, 1);
-
-//Helper log
-//Log.d(TAG_ACTIVITY, "Activity status: onCreate()")
-//Create a dummy task
-//tasks = arrayListOf(
-//Task(1, "Task-1", "This is a task", Priority.NOTASSIGNED, true, null, currentUser)
-//)
+//TODO: Separate logged user from trial user. Refactor common methods
