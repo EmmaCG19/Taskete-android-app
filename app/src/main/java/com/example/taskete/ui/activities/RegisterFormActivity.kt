@@ -117,7 +117,7 @@ class RegisterFormActivity : AppCompatActivity() {
     private fun showRegisterSuccessMessage() {
         UIManager.showMessage(this, resources.getText(R.string.registerSuccess) as String)
 
-        Handler().postDelayed({
+        Handler(mainLooper).postDelayed({
             finish()
         }, 1000)
     }
@@ -125,7 +125,7 @@ class RegisterFormActivity : AppCompatActivity() {
     private fun showRegisterErrorMessage() {
         UIManager.showMessage(this, resources.getText(R.string.registerError) as String)
 
-        Handler().postDelayed({
+        Handler(mainLooper).postDelayed({
             finish()
         }, 1000)
     }

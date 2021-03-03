@@ -54,14 +54,14 @@ class SessionManager {
             sharedPreferences.edit {
                 putInt(LOGGED_USER_ID, userId ?: DEFAULT_USER_ID)
                 putBoolean(FIRST_LOGIN, true)
-                commit()
+                apply()
             }
         }
 
         fun setTrialModeFlag(value: Boolean){
             sharedPreferences.edit{
                 putBoolean(TRIAL_MODE, value)
-                commit()
+                apply()
             }
         }
 
