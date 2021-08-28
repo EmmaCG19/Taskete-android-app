@@ -39,6 +39,5 @@
 
     <!--NavDrawer-->
     <color name="nav_header">@color/primaryDarkColor</color>
-    <color name="nav_bg"></color>
 
 </resources>
